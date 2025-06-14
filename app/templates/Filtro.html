@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Filtrar Veículos{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Filtrar</h5>
+                <form method="get">
+                    <!-- Campos de filtro aqui -->
+                    <button type="submit" class="btn btn-primary mt-3">Aplicar Filtros</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="row">
+            {% for carro in carros %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <img src="{{ carro.imagens.first.foto_url }}" class="card-img-top" alt="{{ carro.modelo }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ carro.marca }} {{ carro.modelo }}</h5>
+                        <p class="card-text">
+                            {{ carro.ano }} • {{ carro.km }} km<br>
+                            R$ {{ carro.valor }}
+                        </p>
+                        <a href="{% url 'detalhes' carro.id %}" class="btn btn-primary">Ver Detalhes</a>
+                        <a href="{% url 'comparar' %}?carro1={{ carro.id }}" class="btn btn-outline-secondary">Comparar</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
