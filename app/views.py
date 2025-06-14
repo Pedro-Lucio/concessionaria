@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect
 from django.views import View
+from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import *
 from .forms import AgendamentoTestDriveForm, UserRegistrationForm, UserEditForm
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
 
 class FiltroView(View):
     def get(self, request):
@@ -21,8 +24,12 @@ class CompararView(View):
         return render(request, 'Comparar.html', {'carro1': carro1, 'carro2': carro2})
 
 class DetalhesView(View):
+    # Exibe detalhes de um carro específico.
     def get(self, request, pk):
-        carro = Carro.objects.get(pk=pk)
+        carro = get_object_or_404(
+            Carro.objects.prefetch_related('imagens'),
+            pk=pk
+        )
         return render(request, 'Detalhes.html', {'carro': carro})
 
 class AgendarTestDriveView(LoginRequiredMixin, View):
@@ -98,13 +105,15 @@ class EditarPerfilView(LoginRequiredMixin, View):
 
 class VendedorListView(ListView):
     model = Vendedor
-    template_name = 'vendedores/list.html'
+    template_name = 'vendedores/lista.html'
+    context_object_name = 'vendedores'  # Nome mais intuitivo para o template
 
 class VendedorDetailView(DetailView):
     model = Vendedor
-    template_name = 'vendedores/detail.html'
+    template_name = 'vendedores/detalhado.html'
+    context_object_name = 'vendedor'  # Nome mais claro no template
 
 class CarrosAPIView(View):
     def get(self, request):
-        # Lógica para API de filtro (retornar JSON)
-        pass
+        carros = Carro.objects.values('id', 'marca', 'modelo', 'valor')
+        return JsonResponse(list(carros), safe=False)

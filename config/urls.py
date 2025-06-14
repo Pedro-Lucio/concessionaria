@@ -15,6 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from django.contrib import admin
 from django.urls import path
 from app import views
 from django.contrib.auth import views as auth_views
@@ -22,6 +23,7 @@ from app.views import VendedorListView, VendedorDetailView
 
 urlpatterns = [
     # Página inicial (Filtro)
+    path('admin/', admin.site.urls),
     path('', views.FiltroView.as_view(), name='home'),
     
     # Página de comparação
@@ -46,8 +48,9 @@ urlpatterns = [
     path('perfil/', views.PerfilView.as_view(), name='perfil'),
     path('editar-perfil/', views.EditarPerfilView.as_view(), name='editar_perfil'),
     
-    path('vendedores/', VendedorListView.as_view(), name='vendedor_list'),
-    path('vendedores/<int:pk>/', VendedorDetailView.as_view(), name='vendedor_detail'),
+    # Vendedores
+    path('vendedores/', VendedorListView.as_view(), name='vendedor_lista'),
+    path('vendedores/<int:pk>/', VendedorDetailView.as_view(), name='vendedor_detalhado'),
     
     # API para filtros (se necessário)
     path('api/carros/', views.CarrosAPIView.as_view(), name='api_carros'),

@@ -101,7 +101,7 @@ class Venda(models.Model):
     
     carro = models.ForeignKey(Carro, on_delete=models.PROTECT, verbose_name="Carro")
     vendedor = models.ForeignKey(Vendedor, on_delete=models.PROTECT, verbose_name="Vendedor")
-    cliente = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Cliente")
+    usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Usuário")
     data_venda = models.DateTimeField(auto_now_add=True, verbose_name="Data da venda")
     valor_venda = models.DecimalField(max_digits=10, decimal_places=3, verbose_name="Valor da venda")
     forma_pagamento = models.CharField(max_length=50, choices=FORMA_PAGAMENTO_CHOICES, verbose_name="Forma de pagamento")
@@ -124,7 +124,7 @@ class AgendamentoTestDrive(models.Model):
         ('remarcado', 'Remarcado'),
     ]
     
-    cliente = models.ForeignKey(Usuario, on_delete=models.CASCADE, verbose_name="Cliente")
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, verbose_name="Usuário")
     carro = models.ForeignKey(Carro, on_delete=models.CASCADE, verbose_name="Carro")
     vendedor = models.ForeignKey(Vendedor, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Vendedor")
     data_agendamento = models.DateTimeField(verbose_name="Data do agendamento")
@@ -133,7 +133,7 @@ class AgendamentoTestDrive(models.Model):
     observacoes = models.TextField(null=True, blank=True, verbose_name="Observações")
 
     def __str__(self):
-        return f"Test Drive #{self.id} - {self.cliente.nome} - {self.carro}"
+        return f"Test Drive #{self.id} - {self.usuario.nome} - {self.carro}"
 
     class Meta:
         verbose_name = "Agendamento de Test Drive"
