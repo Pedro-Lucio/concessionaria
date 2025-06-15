@@ -1,4 +1,33 @@
-<header class="bg-dark text-white p-3">
+<header>
+    <nav>
+        <i class="fa-solid fa-bars" id="icone-menu"></i>
+        <a href="{% url 'home' %}" class="logo"><span class="colorir">Pezza</span> Veículos</a>
+        <ul id="lista">
+            <li><a href="{% url 'home' %}" id="headerhome">Home</a></li>
+            <li><a href="http://localhost/carro/filtro/filtro.php" id="headercarros">Carros</a></li>
+            <li><a href="{% url 'comparar' %}">Comparar</a></li>
+            {% if user.is_authenticated %}
+            <li><a href="{% url 'perfil' %}">Meu Perfil</a></li>
+            <li><a href="{% url 'logout' %}">Sair</a></li>
+            {% else %}
+            <li><a href="{% url 'login' %}">Login</a></li>
+            <li><a href="{% url 'register' %}">Registrar</a></li>
+            {% endif %}
+        </ul>
+        <div class="tema">
+            <input type="checkbox" class="checkbox" id="checkbox">
+            <label for="checkbox">
+                <i class="fas fa-sun"></i>
+                <i class="fas fa-moon"></i>
+                <div class="bola"></div>
+            </label>
+        </div>
+    </nav>
+</header>
+
+<!-- Header de referência -->
+
+<!-- <header class="bg-dark text-white p-3">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center">
             <a href="{% url 'home' %}" class="text-white text-decoration-none">
@@ -15,4 +44,4 @@
             </nav>
         </div>
     </div>
-</header>
+</header> -->

@@ -51,7 +51,4 @@ urlpatterns = [
     # Vendedores
     path('vendedores/', VendedorListView.as_view(), name='vendedor_lista'),
     path('vendedores/<int:pk>/', VendedorDetailView.as_view(), name='vendedor_detalhado'),
-    
-    # API para filtros (se necessário)
-    path('api/carros/', views.CarrosAPIView.as_view(), name='api_carros'),
 ]
