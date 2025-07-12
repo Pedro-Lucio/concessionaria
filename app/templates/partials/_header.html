@@ -8,7 +8,10 @@
             <li><a href="{% url 'comparar' %}">Comparar</a></li>
             {% if user.is_authenticated %}
             <li><a href="{% url 'perfil' %}">Meu Perfil</a></li>
-            <li><a href="{% url 'logout' %}">Sair</a></li>
+            <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-link">Sair</button>
+            </form>
             {% else %}
             <li><a href="{% url 'login' %}">Login</a></li>
             <li><a href="{% url 'register' %}">Registrar</a></li>

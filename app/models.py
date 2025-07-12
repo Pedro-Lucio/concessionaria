@@ -3,6 +3,40 @@ from django.db import models
 # Create your models here.
 
 class Carro(models.Model):
+    MARCA_CHOICES = [
+        ('Chevrolet', 'Chevrolet'),
+        ('Fiat', 'Fiat'),
+        ('Ford', 'Ford'),
+        ('Honda', 'Honda'),
+        ('Hyundai', 'Hyundai'),
+        ('Jeep', 'Jeep'),
+        ('Nissan', 'Nissan'),
+        ('Peugeot', 'Peugeot'),
+        ('Renault', 'Renault'),
+        ('Toyota', 'Toyota'),
+        ('Volkswagen', 'Volkswagen'),
+        ('Audi', 'Audi'),
+        ('BMW', 'BMW'),
+        ('Mercedes-Benz', 'Mercedes-Benz'),
+        ('Outra', 'Outra'),
+    ]
+    
+    COR_CHOICES = [
+        ('Branco', 'Branco'),
+        ('Preto', 'Preto'),
+        ('Prata', 'Prata'),
+        ('Cinza', 'Cinza'),
+        ('Vermelho', 'Vermelho'),
+        ('Azul', 'Azul'),
+        ('Verde', 'Verde'),
+        ('Amarelo', 'Amarelo'),
+        ('Laranja', 'Laranja'),
+        ('Marrom', 'Marrom'),
+        ('Bege', 'Bege'),
+        ('Dourado', 'Dourado'),
+        ('Outra', 'Outra'),
+    ]
+    
     TIPO_CHOICES = [
         ('Hatch', 'Hatch'),
         ('Sedan', 'Sedan'),
@@ -27,13 +61,13 @@ class Carro(models.Model):
         ('Elétrico', 'Elétrico'),
     ]
     
-    marca = models.CharField(max_length=50, verbose_name="Marca")
-    cor = models.CharField(max_length=20, verbose_name="Cor")
+    marca = models.CharField(max_length=50, choices=MARCA_CHOICES, verbose_name="Marca")
+    cor = models.CharField(max_length=20, choices=COR_CHOICES, verbose_name="Cor")
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, verbose_name="Tipo")
     modelo = models.CharField(max_length=50, verbose_name="Modelo")
-    ano = models.CharField(max_length=50, verbose_name="Ano")
+    ano = models.IntegerField(verbose_name="Ano")
     motor = models.CharField(max_length=30, verbose_name="Motor")
-    valor = models.DecimalField(max_digits=10, decimal_places=2,  verbose_name="Valor")
+    valor = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Valor")
     km = models.IntegerField(verbose_name="Quilometragem")
     cambio = models.CharField(max_length=50, choices=CAMBIO_CHOICES, verbose_name="Câmbio")
     combustivel = models.CharField(max_length=50, choices=COMBUSTIVEL_CHOICES, verbose_name="Combustível")

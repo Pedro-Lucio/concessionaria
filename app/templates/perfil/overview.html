@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="profile-container">
+    <h2>Meu Perfil</h2>
+    <p>Usuário: {{ user.username }}</p>
+    <p>Email: {{ user.email }}</p>
+    <a href="{% url 'editar_perfil' %}" class="btn btn-secondary">Editar Perfil</a>
+    <a href="{% url 'logout' %}" class="btn btn-danger">Sair</a>
+</div>
+{% endblock %}

@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import logout
 from .models import *
 from .forms import AgendamentoTestDriveForm, UserRegistrationForm, UserEditForm
 from django.shortcuts import get_object_or_404
@@ -85,6 +86,11 @@ class RegisterView(View):
             form.save()
             return redirect('login')
         return render(request, 'auth/register.html', {'form': form})
+    
+def custom_logout(request):
+    logout(request)
+    request.session.flush()  # Limpa completamente a sessão
+    return redirect('home')
 
 class PerfilView(LoginRequiredMixin, View):
     def get(self, request):

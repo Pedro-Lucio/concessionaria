@@ -32,7 +32,7 @@ class UserRegistrationForm(forms.ModelForm):
 
     class Meta:
         model = Usuario
-        fields = ['nome', 'email', 'telefone', 'senha']
+        fields = ['nome', 'email', 'telefone']
 
     def clean(self):
         cleaned_data = super().clean()

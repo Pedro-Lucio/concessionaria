@@ -40,8 +40,8 @@ urlpatterns = [
     path('financiamento/<int:carro_id>/', views.financiamento_calculo, name='financiamento'),
     
     # Autenticação
-    path('login/', auth_views.LoginView.as_view(template_name='Login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('login/', auth_views.LoginView.as_view(template_name='auth/login.html'), name='login'),
+    path('logout/', custom_logout, name='logout'),
     path('register/', views.RegisterView.as_view(), name='register'),
     
     # Perfil do usuário
