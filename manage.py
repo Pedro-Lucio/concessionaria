@@ -19,4 +19,21 @@ def main():
 
 
 if __name__ == "__main__":
+    # Logica para criar o admin automaticamente
+    # from django.contrib.auth.models import User
+    # from your_app.models import Pessoa
+    
+    # if not User.objects.filter(username='admin').exists():
+    #     admin_user = User.objects.create_superuser(
+    #         username='admin',
+    #         email='admin@escola.com',
+    #         password='senhaforte',
+    #         first_name='Carlos',
+    #         last_name='Administrador'
+    #     )
+    #     Pessoa.objects.create(
+    #         usuario=admin_user,
+    #         contato='(11) 9999-8888',
+    #         data_prova=timezone.now().date() + timezone.timedelta(days=365)
+    #     )
     main()
