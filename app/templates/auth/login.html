@@ -1,0 +1,251 @@
+{% load static %}
+
+{% block extra_css %}
+<style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+    @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+    :root {
+        --main: #fdd700;
+        /* Cor principal */
+        /* #fd0018 -> Alternativa Vermelho */
+        /* #e74c3 -> Alternativa Vermelho */
+        --texto: #020102;
+        --fundo: #f8f9fa;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Poppins, sans-serif;
+        text-decoration: none;
+        border: none;
+        list-style: none;
+        outline: none;
+        scroll-padding-top: 10.5rem;
+        scroll-behavior: smooth;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p {
+        cursor: default;
+    }
+
+    body {
+        background: var(--fundo);
+        min-height: 100vh;
+        transition: all 0.2s linear;
+    }
+
+    html::-webkit-scrollbar {
+        width: 0.5rem;
+        background: var(--fundo);
+    }
+
+    html::-webkit-scrollbar-thumb {
+        border-radius: 5rem;
+        background-color: var(--texto);
+    }
+
+    .destaque {
+        color: var(--main);
+        font-weight: 800;
+    }
+
+    .auth-section {
+        padding: 100px 0;
+        background-color: #f8f9fc;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 40px;
+    }
+
+    .auth-title {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #2e4374;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-control {
+        height: 50px;
+        border-radius: 10px;
+        padding: 0 20px;
+        border: 1px solid #e1e5eb;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    }
+
+    .btn-auth {
+        background: #4e73df;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 10px;
+        width: 100%;
+        transition: all 0.3s;
+    }
+
+    .btn-auth:hover {
+        background: #2e59d9;
+        transform: translateY(-3px);
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .auth-footer a {
+        color: #4e73df;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #e1e5eb;
+    }
+
+    .divider:not(:empty)::before {
+        margin-right: .25em;
+    }
+
+    .divider:not(:empty)::after {
+        margin-left: .25em;
+    }
+
+    .social-login {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .social-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 50px;
+        border-radius: 10px;
+        border: 1px solid #e1e5eb;
+        background: white;
+        color: #4e73df;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .social-btn:hover {
+        background: #f8f9fc;
+        transform: translateY(-3px);
+    }
+
+    .social-btn i {
+        margin-right: 8px;
+        font-size: 18px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-card">
+            <h2 class="auth-title">Entrar no <span class="destaque">Pezza</span>Veículos</h2>
+
+            {% if error_message %}
+            <div class="alert-danger">
+                <i class="bi bi-exclamation-circle me-2"></i> {{ error_message }}
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_username" class="form-label">Nome de usuário</label>
+                    <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username"
+                        maxlength="150" required id="id_username" class="form-control"
+                        placeholder="Digite seu nome de usuário">
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password" class="form-label">Senha</label>
+                    <div class="position-relative">
+                        <input type="password" name="password" autocomplete="current-password" required id="id_password"
+                            class="form-control" placeholder="Digite sua senha">
+                        <span class="password-toggle" id="passwordToggle">
+                            <i class="bi bi-eye"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="remember-me">
+                        <input type="checkbox" id="rememberMe" name="remember_me">
+                        <label for="rememberMe">Lembrar-me</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-auth">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Entrar
+                    </button>
+                </div>
+            </form>
+
+            <div class="auth-footer">
+                <p>Ainda não tem conta? <a href="{% url 'register' %}">Crie uma agora</a></p>
+                <p><a href="#">Esqueceu sua senha?</a></p>
+            </div>
+
+            <div class="divider">ou entre com</div>
+
+            <div class="social-login">
+                <button type="button" class="social-btn">
+                    <i class="bi bi-google"></i> Google
+                </button>
+                <button type="button" class="social-btn">
+                    <i class="bi bi-facebook"></i> Facebook
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

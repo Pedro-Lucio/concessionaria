@@ -1,0 +1,584 @@
+{% extends 'base.html' %}
+
+{% block title %}Reciclagens{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reciclagem de Pneus - Pezza Veículos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        /* Hero Banner */
+        .hero {
+            height: 50vh;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('Images/Pneu.jpeg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-top: 70px;
+        }
+
+        .hero-content {
+            color: #fff;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-content p {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--main);
+            color: #fff;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+        }
+
+        /* Content Section */
+        .content-section {
+            padding: 80px 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+            color: #2c3e50;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title h2::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--main);
+        }
+
+        .section-title p {
+            color: #7f8c8d;
+            max-width: 700px;
+            margin: 20px auto 0;
+        }
+
+        .process-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 80px;
+        }
+
+        .process-step {
+            background: #fff;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .process-step:hover {
+            transform: translateY(-10px);
+        }
+
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            background: #f8f9fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 30px;
+            color: var(--main);
+            border: 2px solid var(--main);
+        }
+
+        .step-number {
+            display: inline-block;
+            background: var(--main);
+            color: #fff;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            line-height: 35px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .process-step h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        /* Discount Section */
+        .discount-section {
+            background: linear-gradient(135deg, #2c3e50 0%, #1a2530 100%);
+            color: #fff;
+            padding: 80px 5%;
+            border-radius: 20px;
+            margin-bottom: 80px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .discount-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .discount-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .discount-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .discount-card:hover {
+            transform: scale(1.05);
+        }
+
+        .discount-card i {
+            font-size: 50px;
+            color: var(--main);
+            margin-bottom: 20px;
+        }
+
+        .discount-card h3 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .discount-card p {
+            color: #ecf0f1;
+        }
+
+        /* Calculator */
+        .calculator-section {
+            background: #fff;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .calculator-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .calculator-input {
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 30px;
+        }
+
+        .calculator-input label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .calculator-input input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s;
+        }
+
+        .calculator-input input:focus {
+            outline: none;
+            border-color: var(--main);
+        }
+
+        .calculator-result {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--main);
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .calculator-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 60px 5% 30px;
+        }
+
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-section {
+            margin-bottom: 30px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 25px;
+            font-size: 1.4rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-section h3::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--main);
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: #ecf0f1;
+            margin-bottom: 15px;
+            display: block;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: var(--main);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            background: var(--main);
+            transform: translateY(-5px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 30px;
+            color: #bdc3c7;
+        }
+
+        /* Responsividade */
+        @media (max-width: 992px) {
+            .hero-content h1 {
+                font-size: 2.8rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            nav ul {
+                margin-top: 15px;
+            }
+
+            nav ul li {
+                margin: 0 10px;
+            }
+
+            .hero {
+                height: 60vh;
+            }
+
+            .hero-content h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero-content p {
+                font-size: 1.2rem;
+            }
+
+            .calculator-section {
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .hero-content h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero-content p {
+                font-size: 1rem;
+            }
+
+            .section-title h2 {
+                font-size: 2rem;
+            }
+
+            .calculator-result {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Reciclagem de Pneus</h1>
+            <p>Troque seus pneus usados por descontos exclusivos na compra de veículos</p>
+            <a href="#como-funciona" class="btn">Saiba Como Participar</a>
+        </div>
+    </section>
+
+    <section class="content-section" id="como-funciona">
+        <div class="section-title">
+            <h2>Como Funciona</h2>
+            <p>Na Pezza Veículos, acreditamos em um futuro sustentável. Por isso, criamos um programa de reciclagem de
+                pneus que beneficia você e o meio ambiente.</p>
+        </div>
+
+        <div class="process-container">
+            <div class="process-step">
+                <div class="step-number">1</div>
+                <div class="step-icon">
+                    <i class="fas fa-truck-pickup"></i>
+                </div>
+                <h3>Traga seus pneus</h3>
+                <p>Visite nossa concessionária com seus pneus usados. Aceitamos pneus de carros, motos e caminhões.</p>
+            </div>
+
+            <div class="process-step">
+                <div class="step-number">2</div>
+                <div class="step-icon">
+                    <i class="fas fa-weight-scale"></i>
+                </div>
+                <h3>Pesagem</h3>
+                <p>Seus pneus serão pesados por nossa equipe para calcular o desconto que você receberá.</p>
+            </div>
+
+            <div class="process-step">
+                <div class="step-number">3</div>
+                <div class="step-icon">
+                    <i class="fas fa-recycle"></i>
+                </div>
+                <h3>Reciclagem</h3>
+                <p>Os pneus são enviados para nossa unidade de reciclagem, onde serão transformados em novos produtos.
+                </p>
+            </div>
+
+            <div class="process-step">
+                <div class="step-number">4</div>
+                <div class="step-icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <h3>Desconto</h3>
+                <p>Receba seu cupom de desconto para usar na compra de qualquer veículo em nossa concessionária!</p>
+            </div>
+        </div>
+
+        <div class="discount-section">
+            <div class="section-title">
+                <h2 style="color: #fff;">Benefícios da Reciclagem</h2>
+                <p style="color: #ecf0f1;">Quanto mais pneus você reciclar, maior será seu desconto!</p>
+            </div>
+
+            <div class="discount-container">
+                <div class="discount-grid">
+                    <div class="discount-card">
+                        <i class="fas fa-weight-hanging"></i>
+                        <h3>Até 50kg</h3>
+                        <p>Desconto de R$ 500,00 na compra de qualquer veículo</p>
+                    </div>
+
+                    <div class="discount-card">
+                        <i class="fas fa-weight-hanging"></i>
+                        <h3>51-100kg</h3>
+                        <p>Desconto de R$ 1.000,00 na compra de qualquer veículo</p>
+                    </div>
+
+                    <div class="discount-card">
+                        <i class="fas fa-weight-hanging"></i>
+                        <h3>101-200kg</h3>
+                        <p>Desconto de R$ 2.000,00 + Kit Limpeza Premium</p>
+                    </div>
+
+                    <div class="discount-card">
+                        <i class="fas fa-weight-hanging"></i>
+                        <h3>Acima de 200kg</h3>
+                        <p>Desconto de R$ 3.500,00 + Brinde Surpresa</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">
+            <h2>Calcule seu Desconto</h2>
+            <p>Descubra quanto desconto você pode ganhar reciclando seus pneus</p>
+        </div>
+
+        <div class="calculator-section">
+            <div class="calculator-container">
+                <div class="calculator-input">
+                    <label for="tire-weight">Peso dos pneus (em kg):</label>
+                    <input type="number" id="tire-weight" min="1" max="1000"
+                        placeholder="Digite o peso total dos pneus">
+                </div>
+
+                <button class="btn" onclick="calculateDiscount()">Calcular Desconto</button>
+
+                <div class="calculator-result" id="result">
+                    Seu desconto aparecerá aqui
+                </div>
+
+                <div class="calculator-info">
+                    <p><i class="fas fa-info-circle"></i> O desconto é válido por 90 dias a partir da data da reciclagem
+                    </p>
+                    <p><i class="fas fa-info-circle"></i> Descontos podem ser combinados com outras promoções</p>
+                    <p><i class="fas fa-info-circle"></i> Traga seus documentos para cadastro no programa</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Função para calcular desconto
+        function calculateDiscount() {
+            const weightInput = document.getElementById('tire-weight');
+            const weight = parseFloat(weightInput.value);
+            const resultElement = document.getElementById('result');
+
+            if (isNaN(weight) || weight <= 0) {
+                resultElement.innerHTML = 'Por favor, digite um peso válido em kg';
+                resultElement.style.color = 'var(--main)';
+                return;
+            }
+
+            let discount = 0;
+            let bonus = '';
+
+            if (weight <= 50) {
+                discount = 500;
+            } else if (weight <= 100) {
+                discount = 1000;
+            } else if (weight <= 200) {
+                discount = 2000;
+                bonus = ' + Kit Limpeza Premium';
+            } else {
+                discount = 3500;
+                bonus = ' + Brinde Surpresa';
+            }
+
+            resultElement.innerHTML = `Seu desconto: <span style="font-size: 2.5rem;">R$ ${discount.toFixed(2).replace('.', ',')}</span>${bonus}`;
+            resultElement.style.color = '#27ae60';
+        }
+
+        // Efeito de rolagem suave
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
+{% endblock %}
