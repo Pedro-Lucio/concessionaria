@@ -135,8 +135,28 @@ class VendedorDetailView(DetailView):
 
 
 
-# Parte de login e register do Auth
-def login_view(request):
+# Login e register do Auth
+def RegisterView(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Cadastro realizado com sucesso!")
+            return redirect('index')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = UserCreationForm()
+    
+    context = {'form': form}
+    return render(request, 'auth/register.html', context)
+
+
+
+def LoginView(request):
     # Se o usuário já estiver autenticado, redirecione para a página inicial
     if request.user.is_authenticated:
         return redirect('index')
@@ -174,22 +194,22 @@ def login_view(request):
 
 
 
-class RegisterView(View):
-    def get(self, request):
-        form = UserRegistrationForm()
-        return render(request, 'auth/register.html', {'form': form})
+# class RegisterView(View):
+#     def get(self, request):
+#         form = UserRegistrationForm()
+#         return render(request, 'auth/register.html', {'form': form})
     
-    def post(self, request):
-        form = UserRegistrationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('login')
-        return render(request, 'auth/register.html', {'form': form})
+#     def post(self, request):
+#         form = UserRegistrationForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('login')
+#         return render(request, 'auth/register.html', {'form': form})
 
 
 
 @login_required
-def logout_view(request):
+def LogoutView(request):
     logout(request)
     messages.success(request, "Você saiu da sua conta.")
     return redirect('index')
