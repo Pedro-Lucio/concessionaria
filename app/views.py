@@ -12,6 +12,7 @@ class FiltroView(View):
         carros = Carro.objects.all()
         return render(request, 'veiculos/filtro.html', {'carros': carros})
 
+
 class CompararView(View):
     def get(self, request):
         # Lógica para comparar carros (poderia receber IDs via GET)
@@ -23,6 +24,7 @@ class CompararView(View):
         
         return render(request, 'veiculos/comparar.html', {'carro1': carro1, 'carro2': carro2})
 
+
 class DetalhesView(View):
     # Exibe detalhes de um carro específico.
     def get(self, request, pk):
@@ -31,6 +33,7 @@ class DetalhesView(View):
             pk=pk
         )
         return render(request, 'veiculos/detalhes.html', {'carro': carro})
+
 
 class AgendarTestDriveView(LoginRequiredMixin, View):
     def get(self, request, carro_id):
@@ -47,9 +50,11 @@ class AgendarTestDriveView(LoginRequiredMixin, View):
             return redirect('agendamento_confirmado')
         return render(request, 'agendamento/agendartestdrive.html', {'form': form})
 
+
 class AgendamentoConfirmadoView(LoginRequiredMixin, View):
     def get(self, request):
         return render(request, 'agendamento/agendamentoconfirmado.html')
+
 
 def financiamento_calculo(request, carro_id):
     carro = get_object_or_404(Carro, pk=carro_id)
@@ -75,6 +80,7 @@ def financiamento_calculo(request, carro_id):
         'default_parcelas': 12
     })
 
+
 class RegisterView(View):
     def get(self, request):
         form = UserRegistrationForm()
@@ -86,15 +92,18 @@ class RegisterView(View):
             form.save()
             return redirect('login')
         return render(request, 'auth/register.html', {'form': form})
-    
+
+
 def custom_logout(request):
     logout(request)
     request.session.flush()  # Limpa completamente a sessão
     return redirect('home')
 
+
 class PerfilView(LoginRequiredMixin, View):
     def get(self, request):
         return render(request, 'perfil/overview.html', {'user': request.user})
+
 
 class EditarPerfilView(LoginRequiredMixin, View):
     def get(self, request):
@@ -108,10 +117,17 @@ class EditarPerfilView(LoginRequiredMixin, View):
             return redirect('perfil')
         return render(request, 'perfil/editarPerfil.html', {'form': form})
 
+
+class ReciclagemView(View):
+    def get(self, request):
+        return render(request, 'reciclagem.html')
+
+
 class VendedorListView(ListView):
     model = Vendedor
     template_name = 'vendedores/lista.html'
     context_object_name = 'vendedores'  # Nome mais intuitivo para o template
+
 
 class VendedorDetailView(DetailView):
     model = Vendedor

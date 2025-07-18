@@ -26,29 +26,40 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.FiltroView.as_view(), name='home'),
     
-    # Página de comparação
-    path('comparar/', views.CompararView.as_view(), name='comparar'),
-    
     # Página de detalhes do carro
     path('detalhes/<int:pk>/', views.DetalhesView.as_view(), name='detalhes'),
     
+
+    # Página de comparação de carros
+    path('comparar/', views.CompararView.as_view(), name='comparar'),
+
+
     # Páginas de agendamento
     path('agendar-test-drive/<int:carro_id>/', views.AgendarTestDriveView.as_view(), name='agendar_test_drive'),
     path('agendamento-confirmado/', views.AgendamentoConfirmadoView.as_view(), name='agendamento_confirmado'),
     
+
     # Páginas de financiamento
     path('financiamento/<int:carro_id>/', views.financiamento_calculo, name='financiamento'),
-    
-    # Autenticação
-    path('login/', auth_views.LoginView.as_view(template_name='auth/login.html'), name='login'),
-    path('logout/', custom_logout, name='logout'),
-    path('register/', views.RegisterView.as_view(), name='register'),
-    
-    # Perfil do usuário
-    path('perfil/', views.PerfilView.as_view(), name='perfil'),
-    path('editar-perfil/', views.EditarPerfilView.as_view(), name='editar_perfil'),
-    
+
+
     # Vendedores
     path('vendedores/', VendedorListView.as_view(), name='vendedor_lista'),
     path('vendedores/<int:pk>/', VendedorDetailView.as_view(), name='vendedor_detalhado'),
+    
+
+    # Perfil do usuário
+    path('perfil/', views.PerfilView.as_view(), name='perfil'),
+    path('editar-perfil/', views.EditarPerfilView.as_view(), name='editar_perfil'),
+
+
+    # Página de reciclagem
+    path('reciclagem/', views.ReciclagemView.as_view(), name='reciclagem'),
+
+
+    # Autenticação
+    path('login/', auth_views.LoginView.as_view(template_name='auth/login.html'), name='login'),
+    # path('logout/', custom_logout, name='logout'),
+    path('register/', views.RegisterView.as_view(), name='register'),
+    
 ]

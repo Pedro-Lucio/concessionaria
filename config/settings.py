@@ -104,8 +104,10 @@ STATIC_ROOT = os.path.join(STATIC_URL, "static")
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "app/static/"),
 ]
+
+# Alterações para o login
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-LOGIN_REDIRECT_URL = 'home'  # Para onde enviar após login bem-sucedido
+LOGIN_REDIRECT_URL = 'home'   # Para onde enviar após login bem-sucedido
 LOGOUT_REDIRECT_URL = 'home'  # Para onde enviar após logout
 LOGIN_URL = 'login'           # URL para redirecionar usuários não autenticados
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
