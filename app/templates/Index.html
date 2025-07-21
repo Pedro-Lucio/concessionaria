@@ -3,23 +3,363 @@
 {% block title %}Filtrar Veículos{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-3">
+<link rel="stylesheet" href="static/css/pages/index.css">
+<style>
+    /* Cards dos carros */
+
+    section {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: row;
+        /* align-items: center; */
+        justify-content: center;
+    }
+
+    .carro-card {
+        transition: all 0.3s ease;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    label {
+        font-weight: 500;
+        margin-bottom: 0.3rem;
+    }
+
+    .checkbox-group {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        padding: 30px;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+    }
+
+    .form-check {
+        margin-bottom: 5px;
+        padding: 3px 0;
+    }
+
+    .form-check-input {
+        margin-top: 0.2rem;
+        margin-right: 5px;
+    }
+
+    .form-check-label {
+        cursor: pointer;
+    }
+</style>
+<section>
+    <div style="width: 400px; margin: 0; padding: 0;">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Filtrar</h5>
-                <form method="get">
-                    <!-- Campos de filtro aqui -->
-                    <button type="submit" class="btn btn-primary mt-3">Aplicar Filtros</button>
+                <form id="filter-form">
+                    <div class="form-group">
+                        <div class="double-slider-box">
+                            <h3 class="range-title">Margem de preço</h3>
+                            <div class="range-slider">
+                                <span class="slider-track"></span>
+                                <input type="range" id="valorMin" name="valorMin" class="valorMin" min="10000"
+                                    max="200000" step="1000" value="20000" oninput="slideMin()">
+                                <input type="range" id="valorMax" name="valorMax" class="valorMax" min="10000"
+                                    max="200000" step="1000" value="200000" oninput="slideMax()">
+                                <div class="tooltip min-tooltip"></div>
+                                <div class="tooltip max-tooltip"></div>
+                            </div>
+                            <div class="input-box">
+                                <div class="min-box">
+                                    <div class="input-wrap">
+                                        <span class="input-addon">$</span>
+                                        <input type="text" name="min_input" class="input-field min-input"
+                                            onchange="setMinInput()">
+                                    </div>
+                                </div>
+                                <div class="max-box">
+                                    <div class="input-wrap">
+                                        <span class="input-addon">$</span>
+                                        <input type="text" name="max_input" class="input-field max-input"
+                                            onchange="setMaxInput()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtro por Ano -->
+                    <div class="form-group">
+                        <label>Ano do Veículo</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <input type="number" class="form-control" id="ano_min" name="ano_min" placeholder="De"
+                                    min="1990" max="{% now 'Y' %}">
+                            </div>
+                            <div class="col-6">
+                                <input type="number" class="form-control" id="ano_max" name="ano_max" placeholder="Até"
+                                    min="1990" max="{% now 'Y' %}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtro por Quilometragem -->
+                    <div class="form-group">
+                        <label for="km_max">Quilometragem máxima</label>
+                        <input type="number" class="form-control" id="km_max" name="km_max" placeholder="Ex: 50000">
+                    </div>
+
+                    <!-- Filtro por Marca (checkboxes) -->
+                    <div class="form-group">
+                        <label>Marca</label>
+                        <div class="checkbox-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="marca-Chevrolet" name="marca"
+                                    value="Chevrolet">
+                                <label class="form-check-label" for="marca-Chevrolet">Chevrolet</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="marca-Fiat" name="marca"
+                                    value="Fiat">
+                                <label class="form-check-label" for="marca-Fiat">Fiat</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="marca-Ford" name="marca"
+                                    value="Ford">
+                                <label class="form-check-label" for="marca-Ford">Ford</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="marca-Honda" name="marca"
+                                    value="Honda">
+                                <label class="form-check-label" for="marca-Honda">Honda</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="marca-Hyundai" name="marca"
+                                    value="Hyundai">
+                                <label class="form-check-label" for="marca-Hyundai">Hyundai</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="marca-Jeep" name="marca"
+                                    value="Jeep">
+                                <label class="form-check-label" for="marca-Jeep">Jeep</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="marca-Nissan" name="marca"
+                                    value="Nissan">
+                                <label class="form-check-label" for="marca-Nissan">Nissan</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="marca-Peugeot" name="marca"
+                                    value="Peugeot">
+                                <label class="form-check-label" for="marca-Peugeot">Peugeot</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="marca-Renault" name="marca"
+                                    value="Renault">
+                                <label class="form-check-label" for="marca-Renault">Renault</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="marca-Toyota" name="marca"
+                                    value="Toyota">
+                                <label class="form-check-label" for="marca-Toyota">Toyota</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="marca-Volkswagen" name="marca"
+                                    value="Volkswagen">
+                                <label class="form-check-label" for="marca-Volkswagen">Volkswagen</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="marca-Audi" name="marca"
+                                    value="Audi">
+                                <label class="form-check-label" for="marca-Audi">Audi</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="marca-BMW" name="marca" value="BMW">
+                                <label class="form-check-label" for="marca-BMW">BMW</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="marca-Mercedes" name="marca"
+                                    value="Mercedes-Benz">
+                                <label class="form-check-label" for="marca-Mercedes">Mercedes-Benz</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtro por Tipo de Veículo (checkboxes) -->
+                    <div class="form-group">
+                        <label>Tipo de Veículo</label>
+                        <div class="checkbox-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="tipo-Hatch" name="tipo"
+                                    value="Hatch">
+                                <label class="form-check-label" for="tipo-Hatch">Hatch</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="tipo-Sedan" name="tipo"
+                                    value="Sedan">
+                                <label class="form-check-label" for="tipo-Sedan">Sedan</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="tipo-SUV" name="tipo" value="SUV">
+                                <label class="form-check-label" for="tipo-SUV">SUV</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="tipo-Picape" name="tipo"
+                                    value="Picape">
+                                <label class="form-check-label" for="tipo-Picape">Picape</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="tipo-Esportivo" name="tipo"
+                                    value="Esportivo">
+                                <label class="form-check-label" for="tipo-Esportivo">Esportivo</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtro por Câmbio (checkboxes) -->
+                    <div class="form-group">
+                        <label>Tipo de Câmbio</label>
+                        <div class="checkbox-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cambio-Manual" name="cambio"
+                                    value="Manual">
+                                <label class="form-check-label" for="cambio-Manual">Manual</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cambio-Automatico" name="cambio"
+                                    value="Automático">
+                                <label class="form-check-label" for="cambio-Automatico">Automático</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cambio-Sequencial" name="cambio"
+                                    value="Automático Sequencial">
+                                <label class="form-check-label" for="cambio-Sequencial">Automático Sequencial</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cambio-CVT" name="cambio"
+                                    value="CVT">
+                                <label class="form-check-label" for="cambio-CVT">CVT</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtro por Combustível (checkboxes) -->
+                    <div class="form-group">
+                        <label>Tipo de Combustível</label>
+                        <div class="checkbox-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="combustivel-Gasolina"
+                                    name="combustivel" value="Gasolina">
+                                <label class="form-check-label" for="combustivel-Gasolina">Gasolina</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="combustivel-Alcool"
+                                    name="combustivel" value="Álcool">
+                                <label class="form-check-label" for="combustivel-Alcool">Álcool</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="combustivel-Flex" name="combustivel"
+                                    value="Flex">
+                                <label class="form-check-label" for="combustivel-Flex">Flex</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="combustivel-Diesel"
+                                    name="combustivel" value="Diesel">
+                                <label class="form-check-label" for="combustivel-Diesel">Diesel</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="combustivel-Hibrido"
+                                    name="combustivel" value="Híbrido">
+                                <label class="form-check-label" for="combustivel-Hibrido">Híbrido</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="combustivel-Eletrico"
+                                    name="combustivel" value="Elétrico">
+                                <label class="form-check-label" for="combustivel-Eletrico">Elétrico</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtro por Cor (checkboxes) -->
+                    <div class="form-group">
+                        <label>Cor do Veículo</label>
+                        <div class="checkbox-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cor-Branco" name="cor"
+                                    value="Branco">
+                                <label class="form-check-label" for="cor-Branco">Branco</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cor-Preto" name="cor" value="Preto">
+                                <label class="form-check-label" for="cor-Preto">Preto</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cor-Prata" name="cor" value="Prata">
+                                <label class="form-check-label" for="cor-Prata">Prata</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cor-Cinza" name="cor" value="Cinza">
+                                <label class="form-check-label" for="cor-Cinza">Cinza</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cor-Vermelho" name="cor"
+                                    value="Vermelho">
+                                <label class="form-check-label" for="cor-Vermelho">Vermelho</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cor-Azul" name="cor" value="Azul">
+                                <label class="form-check-label" for="cor-Azul">Azul</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cor-Verde" name="cor" value="Verde">
+                                <label class="form-check-label" for="cor-Verde">Verde</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cor-Amarelo" name="cor"
+                                    value="Amarelo">
+                                <label class="form-check-label" for="cor-Amarelo">Amarelo</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cor-Laranja" name="cor"
+                                    value="Laranja">
+                                <label class="form-check-label" for="cor-Laranja">Laranja</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cor-Marrom" name="cor"
+                                    value="Marrom">
+                                <label class="form-check-label" for="cor-Marrom">Marrom</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cor-Bege" name="cor" value="Bege">
+                                <label class="form-check-label" for="cor-Bege">Bege</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cor-Dourado" name="cor"
+                                    value="Dourado">
+                                <label class="form-check-label" for="cor-Dourado">Dourado</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" id="reset-filters" class="btn btn-outline-secondary btn-block mt-3">Limpar
+                        Filtros</button>
                 </form>
             </div>
         </div>
     </div>
-    
-    <div class="col-md-9">
-        <div class="row">
+
+
+
+
+
+    <!-- Cards dos carros -->
+
+    <div>
+        <div class="row" id="carros-container">
             {% for carro in carros %}
-            <div class="col-md-4 mb-4">
+            <div class="col-md-4 mb-4 carro-card" data-marca="{{ carro.marca }}" data-cor="{{ carro.cor }}"
+                data-tipo="{{ carro.tipo }}" data-cambio="{{ carro.cambio }}" data-combustivel="{{ carro.combustivel }}"
+                data-valor="{{ carro.valor }}" data-ano="{{ carro.ano }}" data-km="{{ carro.km }}">
                 <div class="card h-100">
                     <img src="{{ carro.imagens.first.foto_url }}" class="card-img-top" alt="{{ carro.modelo }}">
                     <div class="card-body">
@@ -29,12 +369,15 @@
                             R$ {{ carro.valor }}
                         </p>
                         <a href="{% url 'detalhes' carro.id %}" class="btn btn-primary">Ver Detalhes</a>
-                        <a href="{% url 'comparar' %}?carro1={{ carro.id }}" class="btn btn-outline-secondary">Comparar</a>
+                        <a href="{% url 'comparar' %}?carro1={{ carro.id }}"
+                            class="btn btn-outline-secondary">Comparar</a>
                     </div>
                 </div>
             </div>
             {% endfor %}
         </div>
     </div>
-</div>
+</section>
+
+<script src="../../static/js/pages/index.js"></script>
 {% endblock %}

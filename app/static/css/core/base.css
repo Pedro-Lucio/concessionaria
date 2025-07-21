@@ -5,8 +5,20 @@
     --main: #fdd700; /* Cor principal */
     /* #fd0018 -> Alternativa Vermelho */
     /* #e74c3 -> Alternativa Vermelho */
+    --light-gray: #f8f9fc; /* Cinza claro para o fundo */
+
+    
     --texto: #020102;
     --fundo: #f8f9fa;
+    
+    --green: #1cc88a; /* Verde para sucesso */
+    --red: #e74a3b; /* Vermelho para erro */
+    --blue: #4e73df; /* Azul para links */
+
+    /* Cores das medalhas */
+    --bronze: #cd7f32;
+    --silver: #c0c0c0;
+    --gold: #ffd700;
 }
 
 * {

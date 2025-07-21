@@ -17,18 +17,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         .auth-section {
-            padding: 100px 0;
-            background-color: #f8f9fc;
-            min-height: 100vh;
+            background-color: var(--light-gray);
+            width: 100%;
+            max-height: 100vh;
+            overflow: hidden;
             display: flex;
             align-items: center;
         }
 
         .auth-card {
+            transform: scale(0.75);
             background: white;
             border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.15);
             max-width: 600px;
             margin: 0 auto;
             padding: 40px;
@@ -79,7 +81,7 @@
         }
 
         .auth-footer a {
-            color: #4e73df;
+            color: var(--blue);
             text-decoration: none;
             font-weight: 600;
         }
@@ -89,7 +91,7 @@
         }
 
         .password-requirements {
-            background: #f8f9fc;
+            background: var(--light-gray);
             border-radius: 10px;
             padding: 15px;
             margin-top: 10px;
@@ -106,11 +108,11 @@
         }
 
         .password-requirements li.valid {
-            color: #1cc88a;
+            color: var(--green);
         }
 
         .password-requirements li.invalid {
-            color: #e74a3b;
+            color: var(--red);
         }
     </style>
 </head>
@@ -158,21 +160,21 @@
                     </div>
                 </div>
 
-                <!-- EMAIL (já existente) -->
-                <div class="form-group">
-                    <label for="id_email" class="form-label">E-mail *</label>
-                    <input type="email" name="email" class="form-control" id="id_email"
-                        placeholder="seu.email@exemplo.com" required>
-                </div>
-
-                <!-- CREDENCIAIS DE LOGIN -->
+                <!-- EMAIL (já existente) e CREDENCIAIS DE LOGIN-->
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="id_username" class="form-label">Nome de usuário *</label>
                             <input type="text" name="username" id="id_username" class="form-control"
-                                placeholder="Escolha um nome de usuário único" required maxlength="150"
+                                placeholder="Escolha um nome único" required maxlength="150"
                                 autocomplete="username" autocapitalize="none" autofocus>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_email" class="form-label">E-mail *</label>
+                            <input type="email" name="email" class="form-control" id="id_email"
+                                placeholder="seu.email@exemplo.com" required>
                         </div>
                     </div>
                 </div>
@@ -198,7 +200,7 @@
                         <div class="form-group">
                             <label for="id_password2" class="form-label">Confirmar Senha *</label>
                             <input type="password" name="password2" id="id_password2" class="form-control"
-                                placeholder="Digite novamente sua senha" required autocomplete="new-password">
+                                placeholder="Digite-a novamente" required autocomplete="new-password">
                         </div>
                     </div>
                 </div>

@@ -21,10 +21,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
-class FiltroView(View):
+class IndexView(View):
     def get(self, request):
         carros = Carro.objects.all()
-        return render(request, 'veiculos/filtro.html', {'carros': carros})
+        return render(request, 'index.html', {'carros': carros})
 
 
 class CompararView(View):

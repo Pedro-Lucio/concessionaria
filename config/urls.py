@@ -22,9 +22,9 @@ from django.contrib.auth import views as auth_views
 from app.views import *
 
 urlpatterns = [
-    # Página inicial (Filtro)
+    # Página inicial (Index)
     path('admin/', admin.site.urls),
-    path('', views.FiltroView.as_view(), name='index'),
+    path('', views.IndexView.as_view(), name='index'),
     
 
     # Página de detalhes do carro
