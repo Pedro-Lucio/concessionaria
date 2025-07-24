@@ -33,11 +33,6 @@ urlpatterns = [
 
     # Página de comparação de carros
     path('comparar/', views.CompararView.as_view(), name='comparar'),
-
-
-    # Páginas de agendamento
-    path('agendar-test-drive/<int:carro_id>/', views.AgendarTestDriveView.as_view(), name='agendar_test_drive'),
-    path('agendamento-confirmado/', views.AgendamentoConfirmadoView.as_view(), name='agendamento_confirmado'),
     
 
     # Páginas de financiamento
@@ -64,4 +59,7 @@ urlpatterns = [
 
     # Logout
     path('logout/', LogoutView, name='logout'),
+
+    path('carro/<int:carro_id>/test-drive/', views.agendar_test_drive, name='agendar_test_drive'),
 ]
+

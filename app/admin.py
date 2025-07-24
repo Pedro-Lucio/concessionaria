@@ -1,9 +1,10 @@
 from django.contrib import admin
 from .models import (
     Carro, ImagemCarro, Usuario, 
-    Vendedor, Venda, AgendamentoTestDrive
+    Vendedor, Venda
 )
 from django.utils.html import format_html
+from .models import TestDrive
 
 # ========== CARRO E IMAGENS ==========
 class ImagemCarroInline(admin.TabularInline):
@@ -75,6 +76,8 @@ class UsuarioAdmin(admin.ModelAdmin):
         return obj.venda_set.count()
     total_compras.short_description = 'Compras'
 
+    
+
 @admin.register(Vendedor)
 class VendedorAdmin(admin.ModelAdmin):
     list_display = (
@@ -143,60 +146,8 @@ class VendaAdmin(admin.ModelAdmin):
         return f"{obj.parcelas}x" if obj.parcelas else 'À vista'
     parcelas_info.short_description = 'Parcelas'
 
-@admin.register(AgendamentoTestDrive)
-class AgendamentoTestDriveAdmin(admin.ModelAdmin):
-    list_display = (
-        'id', 'cliente_info', 'carro_info', 
-        'vendedor_info', 'data_agendamento', 
-        'status',  # Campo original para edição
-        'status_colorido',  # Versão formatada para visualização
-        'dias_restantes'
-    )
-    list_editable = ('status',)
-    list_filter = (
-        'status', 'data_agendamento', 
-        'vendedor'
-    )
-    search_fields = (
-        'usuario__nome', 'carro__marca', 
-        'carro__modelo', 'vendedor__nome'
-    )
-    date_hierarchy = 'data_agendamento'
-    list_editable = ('status',)
-    list_select_related = ('usuario', 'carro', 'vendedor')
-
-    def cliente_info(self, obj):
-        return obj.usuario.nome
-    cliente_info.short_description = 'Cliente'
-
-    def carro_info(self, obj):
-        return f"{obj.carro.marca} {obj.carro.modelo}"
-    carro_info.short_description = 'Carro'
-
-    def vendedor_info(self, obj):
-        return obj.vendedor.nome if obj.vendedor else '-'
-    vendedor_info.short_description = 'Vendedor'
-
-    def status_colorido(self, obj):
-        colors = {
-            'agendado': 'orange',
-            'realizado': 'green',
-            'cancelado': 'red',
-            'remarcado': 'blue'
-        }
-        return format_html(
-            '<span style="color: {};">{}</span>',
-            colors.get(obj.status, 'black'),
-            obj.get_status_display()
-        )
-    status_colorido.short_description = 'Status'
-
-    def dias_restantes(self, obj):
-        from django.utils import timezone
-        delta = obj.data_agendamento - timezone.now()
-        if delta.days > 0:
-            return f"Em {delta.days} dias"
-        elif delta.days == 0:
-            return "Hoje"
-        return f"Há {abs(delta.days)} dias"
-    dias_restantes.short_description = 'Quando'
+@admin.register(TestDrive)
+class TestDriveAdmin(admin.ModelAdmin):
+    list_display = ('carro', 'data', 'horario', 'criado_em')
+    search_fields = ('carro__marca', 'carro__modelo')
+    list_filter = ('data',)

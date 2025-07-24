@@ -4,6 +4,116 @@ from .models import *
 from django.views import View
 from django.shortcuts import get_object_or_404
 #
+from django.contrib import messages
+from .models import Carro, TestDrive
+from datetime import datetime, date, time, timedelta
+from calendar import monthcalendar, monthrange
+import locale
+
+locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
+
+def agendar_test_drive(request, carro_id):
+    carro = get_object_or_404(Carro, pk=carro_id)
+    hoje = date.today()
+    agora = datetime.now().time()
+    
+    # Controle de navegação entre meses
+    month = int(request.GET.get('month', hoje.month))
+    year = int(request.GET.get('year', hoje.year))
+    
+    # Limita navegação ao mês atual e próximo
+    max_date = hoje + timedelta(days=30)
+    if month not in [hoje.month, max_date.month] or year not in [hoje.year, max_date.year]:
+        month = hoje.month
+        year = hoje.year
+    
+    # Data selecionada
+    selected_date_str = request.GET.get('data', hoje.strftime('%Y-%m-%d'))
+    try:
+        selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+    except ValueError:
+        selected_date = hoje
+    
+    # Configuração do calendário
+    cal = monthcalendar(year, month)
+    month_name = datetime(year, month, 1).strftime('%B').capitalize()
+    
+    # Prepara os dias do calendário (todos visíveis)
+    calendario_completo = []
+    for week in cal:
+        semana = []
+        for day in week:
+            if day == 0:
+                semana.append({'day': 0, 'date': None, 'is_past': False, 'is_weekend': False, 'is_available': False})
+            else:
+                dia_data = date(year, month, day)
+                is_weekend = dia_data.weekday() >= 5  # 5=sábado, 6=domingo
+                semana.append({
+                    'day': day,
+                    'date': dia_data,
+                    'is_past': dia_data < hoje,
+                    'is_weekend': is_weekend,
+                    'is_selected': dia_data == selected_date,
+                    'is_available': dia_data >= hoje and not is_weekend
+                })
+        calendario_completo.append(semana)
+    
+    # Verifica se a data selecionada é fim de semana
+    is_weekend_selected = selected_date.weekday() >= 5 if selected_date else False
+    
+    # Horários disponíveis (apenas para dias úteis futuros)
+    horarios_disponiveis = []
+    if selected_date >= hoje and not is_weekend_selected:
+        horarios_agendados = TestDrive.objects.filter(
+            carro=carro,
+            data=selected_date
+        ).values_list('horario', flat=True)
+        
+        for hora in range(8, 18):  # 8h às 17h
+            horario = time(hora, 0)
+            if (selected_date != hoje or horario > agora) and horario not in horarios_agendados:
+                horarios_disponiveis.append(horario)
+    
+    # Processamento do POST
+    if request.method == 'POST':
+        try:
+            data = datetime.strptime(request.POST.get('data'), '%Y-%m-%d').date()
+            horario = datetime.strptime(request.POST.get('horario'), '%H:%M').time()
+            
+            if data < hoje or (data == hoje and horario < agora):
+                messages.error(request, "Não é possível agendar no passado")
+                return redirect('agendar_test_drive', carro_id=carro_id)
+                
+            if data.weekday() >= 5:  # Fim de semana
+                messages.error(request, "Só é possível agendar de segunda a sexta")
+                return redirect('agendar_test_drive', carro_id=carro_id)
+                
+            if TestDrive.objects.filter(carro=carro, data=data, horario=horario).exists():
+                messages.warning(request, "Horário já reservado")
+                return redirect('agendar_test_drive', carro_id=carro_id)
+            
+            TestDrive.objects.create(carro=carro, data=data, horario=horario)
+            messages.success(request, f"Agendado para {data.strftime('%d/%m/%Y')} às {horario.strftime('%H:%M')}")
+            return redirect('detalhes', pk=carro_id)
+            
+        except Exception as e:
+            messages.error(request, f"Erro: {str(e)}")
+            return redirect('agendar_test_drive', carro_id=carro_id)
+    
+    context = {
+        'carro': carro,
+        'hoje': hoje,
+        'selected_date': selected_date,
+        'is_weekend_selected': is_weekend_selected,
+        'calendario_completo': calendario_completo,
+        'horarios_disponiveis': horarios_disponiveis,
+        'current_month': month,
+        'current_year': year,
+        'month_name': month_name,
+        'show_prev': month > hoje.month or year > hoje.year,
+        'show_next': (month < max_date.month and year <= max_date.year) or (year < max_date.year),
+    }
+    return render(request, 'agendar_test_drive.html', context)
 
 # Enviar notificações ao usuário
 from django.contrib import messages
@@ -12,7 +122,7 @@ from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Formulários
-from .forms import AgendamentoTestDriveForm, UserRegistrationForm, UserEditForm
+from .forms import UserRegistrationForm, UserEditForm
 
 # Para fazer com que o login seja necessário ao utilizar a View
 from django.contrib.auth.decorators import login_required
@@ -47,27 +157,6 @@ class DetalhesView(View):
             pk=pk
         )
         return render(request, 'veiculos/detalhes.html', {'carro': carro})
-
-
-class AgendarTestDriveView(LoginRequiredMixin, View):
-    def get(self, request, carro_id):
-        carro = Carro.objects.get(pk=carro_id)
-        form = AgendamentoTestDriveForm(initial={'carro': carro, 'usuario': request.user})
-        return render(request, 'agendamento/agendartestdrive.html', {'form': form, 'carro': carro})
-    
-    def post(self, request, carro_id):
-        form = AgendamentoTestDriveForm(request.POST)
-        if form.is_valid():
-            agendamento = form.save(commit=False)
-            agendamento.usuario = request.user
-            agendamento.save()
-            return redirect('agendamento_confirmado')
-        return render(request, 'agendamento/agendartestdrive.html', {'form': form})
-
-
-class AgendamentoConfirmadoView(LoginRequiredMixin, View):
-    def get(self, request):
-        return render(request, 'agendamento/agendamentoconfirmado.html')
 
 
 def financiamento_calculo(request, carro_id):

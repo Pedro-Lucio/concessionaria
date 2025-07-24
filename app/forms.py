@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import AgendamentoTestDrive, Usuario
+from .models import Usuario
 from django.utils import timezone
 
 class UserEditForm(forms.ModelForm):
@@ -12,19 +12,6 @@ class UserEditForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'readonly': 'readonly'}),
         }
 
-class AgendamentoTestDriveForm(forms.ModelForm):
-    class Meta:
-        model = AgendamentoTestDrive
-        fields = ['carro', 'data_agendamento', 'observacoes']
-        widgets = {
-            'data_agendamento': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-        }
-
-    def clean_data_agendamento(self):
-        data = self.cleaned_data.get('data_agendamento')
-        if data and data < timezone.now():
-            raise ValidationError("A data deve ser futura!")
-        return data
 
 class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
