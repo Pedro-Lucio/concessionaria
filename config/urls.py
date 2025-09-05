@@ -45,10 +45,12 @@ urlpatterns = [
 
 
 
-    # Vendedores
-    path('vendedores/', VendedorListView.as_view(), name='vendedor_lista'),
-    path('vendedores/<int:pk>/', VendedorDetailView.as_view(), name='vendedor_detalhado'),
+    # Funcionários
+    path('funcionarios/', FuncionarioListView.as_view(), name='funcionario_lista'),
+    path('funcionarios/<int:pk>/', FuncionarioDetailView.as_view(), name='funcionario_detalhado'),
     
+    # Url disponível somente para gerente
+    path('funcionarios/novo/', views.criar_funcionario, name='criar_funcionario'),
 
 
 
