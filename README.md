@@ -1,5 +1,5 @@
-# Plataforma Digital para Concessionária
+# Plataforma Digital da Pezza Veículos
 
-Este projeto propõe um site inovador na área de concessionárias, com o objetivo de transformar a jornada de compra de veículos em uma experiência mais prática, intuitiva e eficiente. A plataforma oferece recursos como busca personalizada, comparação de modelos, catálogo em tempo real e reserva online, atendendo às necessidades de clientes que valorizam agilidade, clareza nas informações e tecnologia no processo de compra.
+Este projeto apresenta o desenvolvimento de um site moderno e interativo para a marca Pezza Veículos, com o objetivo de tornar a experiência de compra de veículos mais clara, ágil e prática. A plataforma reúne recursos como busca personalizada, comparação de modelos, catálogo em tempo real e reserva online, atendendo às expectativas de clientes que valorizam tecnologia, praticidade e um atendimento digital eficiente.
 
-O sistema beneficia tanto consumidores — como famílias, jovens adultos e profissionais com rotinas intensas — quanto as concessionárias, que passam a alcançar um público mais amplo e qualificado, alinhando-se aos hábitos digitais atuais.
+Além de facilitar a escolha e aquisição de veículos para diferentes perfis de consumidores — famílias, jovens adultos e profissionais com rotinas intensas — o projeto fortalece a presença digital da marca, ampliando seu alcance e oferecendo um serviço alinhado aos hábitos de consumo atuais.
