@@ -137,7 +137,7 @@ from django.contrib.auth import update_session_auth_hash
 
 @login_required
 def meu_perfil(request):
-    Usuario = request.user.Usuario
+    Usuario = request.user.usuario
     
     if request.method == 'POST':
         perfil_form = PerfilForm(request.POST, instance=Usuario)
@@ -182,17 +182,55 @@ def meu_perfil(request):
 
 
 
-# Vendedores
-class VendedorListView(ListView):
-    model = Vendedor
-    template_name = 'vendedores/lista.html'
-    context_object_name = 'vendedores'  # Nome mais intuitivo para o template
 
 
-class VendedorDetailView(DetailView):
-    model = Vendedor
-    template_name = 'vendedores/detalhado.html'
-    context_object_name = 'vendedor'  # Nome mais claro no template
+
+
+
+# Lista de funcionários (usuários com ocupação = 'funcionario')
+class FuncionarioListView(ListView):
+    model = Usuario
+    template_name = 'funcionarios/lista.html'
+    context_object_name = 'funcionarios'
+
+    def get_queryset(self):
+        return Usuario.objects.filter(ocupacao='funcionario')
+
+
+# Detalhe de um funcionário específico
+class FuncionarioDetailView(DetailView):
+    model = Usuario
+    template_name = 'funcionarios/detalhado.html'
+    context_object_name = 'funcionario'
+
+    def get_queryset(self):
+        return Usuario.objects.filter(ocupacao='funcionario')
+
+
+# Gerente cria funcionário
+@login_required
+def criar_funcionario(request):
+    if not request.user.is_superuser and request.user.usuario.ocupacao != "gerente":
+        return redirect("home")  # só gerente pode criar funcionário
+
+    if request.method == "POST":
+        username = request.POST["username"]
+        senha = request.POST["senha"]
+        nome = request.POST["nome"]
+        telefone = request.POST["telefone"]
+
+        user = User.objects.create_user(username=username, password=senha)
+
+        # o signal já criou um Usuario como cliente
+        usuario = user.usuario
+        usuario.nome = nome
+        usuario.telefone = telefone
+        usuario.ocupacao = "funcionario"
+        usuario.save()
+
+        return redirect("lista_funcionarios")
+
+    return render(request, "usuarios/criar_funcionario.html")
 
 
 

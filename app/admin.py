@@ -1,7 +1,6 @@
 from django.contrib import admin
 from .models import (
-    Carro, ImagemCarro, Usuario, 
-    Vendedor, Venda
+    Carro, ImagemCarro, Usuario, Venda
 )
 from django.utils.html import format_html
 from .models import TestDrive
@@ -85,28 +84,6 @@ class UsuarioAdmin(admin.ModelAdmin):
         return obj.venda_set.count()
     total_compras.short_description = 'Compras'
 
-
-    
-
-@admin.register(Vendedor)
-class VendedorAdmin(admin.ModelAdmin):
-    list_display = (
-        'nome', 'email', 'telefone', 
-        'data_admissao', 'status', 
-        'total_vendas'
-    )
-    list_filter = ('ativo', 'data_admissao')
-    search_fields = ('nome', 'email', 'cpf')
-    date_hierarchy = 'data_admissao'
-
-    def status(self, obj):
-        return "Ativo" if obj.ativo else "Inativo"
-    status.short_description = 'Status'
-    status.admin_order_field = 'ativo'
-
-    def total_vendas(self, obj):
-        return obj.venda_set.count()
-    total_vendas.short_description = 'Vendas'
 
 # ========== VENDAS E AGENDAMENTOS ==========
 class VendaInline(admin.TabularInline):
