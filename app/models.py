@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
 
 
 
@@ -241,6 +242,12 @@ class TestDrive(models.Model):
     data = models.DateField()
     horario = models.TimeField()
     criado_em = models.DateTimeField(auto_now_add=True)
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True, blank=True,
+        related_name='test_drives'
+    )
 
     def __str__(self):
-        return f"Test Drive - {self.carro} ({self.data} {self.horario})"
+        return f"Test Drive - {self.carro} ({self.data} {self.horario}) - {self.usuario.username if self.usuario else 'Sem usuário'}"

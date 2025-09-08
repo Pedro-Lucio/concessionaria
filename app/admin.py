@@ -135,6 +135,12 @@ class VendaAdmin(admin.ModelAdmin):
 
 @admin.register(TestDrive)
 class TestDriveAdmin(admin.ModelAdmin):
-    list_display = ('carro', 'data', 'horario', 'criado_em')
-    search_fields = ('carro__marca', 'carro__modelo')
+    list_display = ('carro', 'data', 'horario', 'usuario_info', 'criado_em')
+    search_fields = ('carro__marca', 'carro__modelo', 'usuario__username', 'usuario__email')
     list_filter = ('data',)
+    ordering = ('-data', 'horario')
+
+    # Método para exibir usuário no admin
+    def usuario_info(self, obj):
+        return obj.usuario.username if obj.usuario else '-'
+    usuario_info.short_description = 'Usuário'

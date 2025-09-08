@@ -52,7 +52,7 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Interessado?</h5>
-                <a href="{% url 'agendar_test_drive' carro.id %}" class="btn btn-primary w-100 mb-2">Agendar Test Drive</a>
+                <a href="{% url 'agendar_test_drive' carro_id=carro.id %}" class="btn btn-primary w-100 mb-2">Agendar Test Drive</a>
                 <a href="{% url 'financiamento' carro.id %}" class="btn btn-success w-100">Simular Financiamento</a>
             </div>
         </div>

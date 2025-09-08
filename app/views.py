@@ -302,7 +302,7 @@ def financiamento_calculo(request, carro_id):
 
 
 
-# Test Drive
+@login_required
 def agendar_test_drive(request, carro_id):
     carro = get_object_or_404(Carro, pk=carro_id)
     hoje = date.today()
@@ -329,7 +329,6 @@ def agendar_test_drive(request, carro_id):
     cal = monthcalendar(year, month)
     month_name = datetime(year, month, 1).strftime('%B').capitalize()
     
-    # Prepara os dias do calendário (todos visíveis)
     calendario_completo = []
     for week in cal:
         semana = []
@@ -338,7 +337,7 @@ def agendar_test_drive(request, carro_id):
                 semana.append({'day': 0, 'date': None, 'is_past': False, 'is_weekend': False, 'is_available': False})
             else:
                 dia_data = date(year, month, day)
-                is_weekend = dia_data.weekday() >= 5  # 5=sábado, 6=domingo
+                is_weekend = dia_data.weekday() >= 5
                 semana.append({
                     'day': day,
                     'date': dia_data,
@@ -349,10 +348,8 @@ def agendar_test_drive(request, carro_id):
                 })
         calendario_completo.append(semana)
     
-    # Verifica se a data selecionada é fim de semana
     is_weekend_selected = selected_date.weekday() >= 5 if selected_date else False
     
-    # Horários disponíveis (apenas para dias úteis futuros)
     horarios_disponiveis = []
     if selected_date >= hoje and not is_weekend_selected:
         horarios_agendados = TestDrive.objects.filter(
@@ -360,12 +357,14 @@ def agendar_test_drive(request, carro_id):
             data=selected_date
         ).values_list('horario', flat=True)
         
-        for hora in range(8, 18):  # 8h às 17h
+        for hora in range(8, 18):
             horario = time(hora, 0)
             if (selected_date != hoje or horario > agora) and horario not in horarios_agendados:
                 horarios_disponiveis.append(horario)
     
-    # Processamento do POST
+    # Flag para mostrar popup
+    show_popup = False
+
     if request.method == 'POST':
         try:
             data = datetime.strptime(request.POST.get('data'), '%Y-%m-%d').date()
@@ -373,23 +372,21 @@ def agendar_test_drive(request, carro_id):
             
             if data < hoje or (data == hoje and horario < agora):
                 messages.error(request, "Não é possível agendar no passado")
-                return redirect('agendamento/agendar_test_drive', carro_id=carro_id)
-                
-            if data.weekday() >= 5:  # Fim de semana
+            elif data.weekday() >= 5:
                 messages.error(request, "Só é possível agendar de segunda a sexta")
-                return redirect('agendamento/agendar_test_drive', carro_id=carro_id)
-                
-            if TestDrive.objects.filter(carro=carro, data=data, horario=horario).exists():
+            elif TestDrive.objects.filter(carro=carro, data=data, horario=horario).exists():
                 messages.warning(request, "Horário já reservado")
-                return redirect('agendamento/agendar_test_drive', carro_id=carro_id)
-            
-            TestDrive.objects.create(carro=carro, data=data, horario=horario)
-            messages.success(request, f"Agendado para {data.strftime('%d/%m/%Y')} às {horario.strftime('%H:%M')}")
-            return redirect('detalhes', pk=carro_id)
-            
+            else:
+                TestDrive.objects.create(
+                    carro=carro,
+                    data=data,
+                    horario=horario,
+                    usuario=request.user
+                )
+                messages.success(request, f"Test drive agendado para {data.strftime('%d/%m/%Y')} às {horario.strftime('%H:%M')}")
+                show_popup = True  # dispara o popup
         except Exception as e:
             messages.error(request, f"Erro: {str(e)}")
-            return redirect('agendamento/agendar_test_drive', carro_id=carro_id)
     
     context = {
         'carro': carro,
@@ -403,6 +400,7 @@ def agendar_test_drive(request, carro_id):
         'month_name': month_name,
         'show_prev': month > hoje.month or year > hoje.year,
         'show_next': (month < max_date.month and year <= max_date.year) or (year < max_date.year),
+        'show_popup': show_popup
     }
     return render(request, 'agendamento/agendar_test_drive.html', context)
 

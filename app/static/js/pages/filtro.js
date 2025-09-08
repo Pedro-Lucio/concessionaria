@@ -3,97 +3,90 @@ document.addEventListener('DOMContentLoaded', function() {
     const resetBtn = document.getElementById('reset-filters');
     const carrosCards = document.querySelectorAll('.carro-card');
     const filterInputs = document.querySelectorAll('#filter-form input');
-    
-    // Função para obter valores selecionados dos checkboxes
+
+    // Pega valores de checkboxes
     function getCheckedValues(name) {
-        const checkboxes = document.querySelectorAll(`input[name="${name}"]:checked`);
-        return Array.from(checkboxes).map(cb => cb.value.toLowerCase());
+        return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`))
+            .map(cb => cb.value.trim().toLowerCase());
     }
-    
-    // Função para aplicar os filtros
+
     function aplicarFiltros() {
-        const marcasSelecionadas = getCheckedValues('marca');
-        const coresSelecionadas = getCheckedValues('cor');
-        const tiposSelecionados = getCheckedValues('tipo');
-        const cambiosSelecionados = getCheckedValues('cambio');
-        const combustiveisSelecionados = getCheckedValues('combustivel');
-        
-        const valorMin = parseFloat(document.getElementById('valor_min').value) || 0;
-        const valorMax = parseFloat(document.getElementById('valor_max').value) || Infinity;
-        const anoMin = parseInt(document.getElementById('ano_min').value) || 0;
-        const anoMax = parseInt(document.getElementById('ano_max').value) || Infinity;
-        const kmMax = parseInt(document.getElementById('km_max').value) || Infinity;
-        
+        const marcas = getCheckedValues('marca');
+        const cores = getCheckedValues('cor');
+        const tipos = getCheckedValues('tipo');
+        const cambios = getCheckedValues('cambio');
+        const combustiveis = getCheckedValues('combustivel');
+
+        let valorMin = parseFloat(document.getElementById('valorMin').value);
+        let valorMax = parseFloat(document.getElementById('valorMax').value);
+        let anoMin = parseInt(document.getElementById('ano_min').value);
+        let anoMax = parseInt(document.getElementById('ano_max').value);
+        let kmMax = parseInt(document.getElementById('km_max').value);
+
+        // Tratamento de valores inválidos
+        if (isNaN(valorMin) || valorMin < 5000) valorMin = 5000;
+        if (isNaN(valorMax) || valorMax > 200000) valorMax = 200000;
+        if (isNaN(anoMin) || anoMin < 1990) anoMin = 1990;
+        if (isNaN(anoMax) || anoMax > new Date().getFullYear()) anoMax = new Date().getFullYear();
+        if (isNaN(kmMax) || kmMax < 0) kmMax = Infinity;
+
         carrosCards.forEach(card => {
-            const cardMarca = card.dataset.marca.toLowerCase();
-            const cardCor = card.dataset.cor.toLowerCase();
-            const cardTipo = card.dataset.tipo.toLowerCase();
-            const cardCambio = card.dataset.cambio.toLowerCase();
-            const cardCombustivel = card.dataset.combustivel.toLowerCase();
-            const cardValor = parseFloat(card.dataset.valor);
-            const cardAno = parseInt(card.dataset.ano);
-            const cardKm = parseInt(card.dataset.km);
-            
-            // Verificar seleções (se nenhum checkbox foi marcado, mostra todos)
-            const marcaMatch = marcasSelecionadas.length === 0 || marcasSelecionadas.includes(cardMarca);
-            const corMatch = coresSelecionadas.length === 0 || coresSelecionadas.includes(cardCor);
-            const tipoMatch = tiposSelecionados.length === 0 || tiposSelecionados.includes(cardTipo);
-            const cambioMatch = cambiosSelecionados.length === 0 || cambiosSelecionados.includes(cardCambio);
-            const combustivelMatch = combustiveisSelecionados.length === 0 || combustiveisSelecionados.includes(cardCombustivel);
-            
-            // Verificar faixas
-            const valorMatch = cardValor >= valorMin && cardValor <= valorMax;
-            const anoMatch = cardAno >= anoMin && cardAno <= anoMax;
-            const kmMatch = cardKm <= kmMax;
-            
-            if (marcaMatch && corMatch && tipoMatch && cambioMatch && combustivelMatch && 
-                valorMatch && anoMatch && kmMatch) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
+            const marca = card.dataset.marca.trim().toLowerCase();
+            const cor = card.dataset.cor.trim().toLowerCase();
+            const tipo = card.dataset.tipo.trim().toLowerCase();
+            const cambio = card.dataset.cambio.trim().toLowerCase();
+            const combustivel = card.dataset.combustivel.trim().toLowerCase();
+            const valor = parseFloat(card.dataset.valor);
+            const ano = parseInt(card.dataset.ano);
+            const km = parseInt(card.dataset.km);
+
+            const match =
+                (marcas.length === 0 || marcas.includes(marca)) &&
+                (cores.length === 0 || cores.includes(cor)) &&
+                (tipos.length === 0 || tipos.includes(tipo)) &&
+                (cambios.length === 0 || cambios.includes(cambio)) &&
+                (combustiveis.length === 0 || combustiveis.includes(combustivel)) &&
+                valor >= valorMin && valor <= valorMax &&
+                ano >= anoMin && ano <= anoMax &&
+                km <= kmMax;
+
+            card.style.display = match ? 'block' : 'none';
         });
     }
-    
-    // Aplicar filtros automaticamente quando qualquer input muda
+
+    // Filtros automáticos
     filterInputs.forEach(input => {
         input.addEventListener('change', aplicarFiltros);
         if (input.type === 'number') {
-            input.addEventListener('keyup', function(e) {
-                // Atraso para evitar filtragem a cada tecla pressionada
+            input.addEventListener('keyup', function() {
                 clearTimeout(this.timer);
                 this.timer = setTimeout(aplicarFiltros, 500);
             });
         }
     });
-    
-    // Evento de reset dos filtros
+
+    // Reset
     resetBtn.addEventListener('click', function() {
-        // Resetar todos os inputs
         form.reset();
-        // Aplicar filtros para mostrar todos os carros
+        document.getElementById('valorMin').value = 20000;
+        document.getElementById('valorMax').value = 200000;
         aplicarFiltros();
     });
-    
-    // Aplicar filtros ao carregar a página se houver parâmetros na URL
+
+    // Parâmetros da URL
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.toString()) {
-        // Preencher os campos do formulário com os parâmetros da URL
         urlParams.forEach((value, key) => {
-            if (key === 'marca' || key === 'cor' || key === 'tipo' || key === 'cambio' || key === 'combustivel') {
-                // Para checkboxes, marcar os valores separados por vírgula
-                const values = value.split(',');
-                values.forEach(val => {
+            if (['marca','cor','tipo','cambio','combustivel'].includes(key)) {
+                value.split(',').forEach(val => {
                     const checkbox = document.querySelector(`input[name="${key}"][value="${val}"]`);
                     if (checkbox) checkbox.checked = true;
                 });
             } else {
-                const element = document.getElementById(key);
-                if (element) element.value = value;
+                const el = document.getElementById(key);
+                if (el) el.value = value;
             }
         });
-        
-        // Aplicar os filtros
         aplicarFiltros();
     }
 });
