@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Criar Funcionário</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>Usuário</label>
+    <input type="text" name="username" required><br>
+
+    <label>Senha</label>
+    <input type="password" name="senha" required><br>
+
+    <label>Nome</label>
+    <input type="text" name="nome" required><br>
+
+    <label>Telefone</label>
+    <input type="text" name="telefone"><br>
+
+    <button type="submit">Criar</button>
+</form>
+
+{% endblock %}
