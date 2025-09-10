@@ -177,3 +177,64 @@ document.addEventListener('DOMContentLoaded', function () {
         aplicarFiltros();
     }
 });
+
+
+
+
+
+
+
+//COMPARAR
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleCompareBtn = document.querySelector(".btn-outline-primary"); // botão lateral
+    const compareButtons = document.querySelectorAll(".btn-comparar-card");
+    let compareMode = false;
+    let selectedCars = [];
+
+    // Função para redirecionar quando 2 carros forem escolhidos
+    function goToCompare() {
+        if (selectedCars.length === 2) {
+            const url = `/comparar?carro1=${selectedCars[0]}&carro2=${selectedCars[1]}`;
+            window.location.href = url;
+        }
+    }
+
+    // Ativa/desativa modo de comparação
+    toggleCompareBtn.addEventListener("click", () => {
+        compareMode = !compareMode;
+        selectedCars = []; // reseta seleção
+        compareButtons.forEach(btn => {
+            btn.classList.toggle("d-none", !compareMode);
+            btn.classList.remove("active"); // remove destaque visual
+        });
+        toggleCompareBtn.textContent = compareMode ? "Cancelar Comparação" : "Comparar";
+
+        if (compareMode) {
+            const modal = new bootstrap.Modal(document.getElementById("compararModal"));
+            modal.show();}
+    });
+
+    // Clique nos botões dos cards
+    compareButtons.forEach(btn => {
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            const carId = this.dataset.id;
+
+            // Seleção/desmarcação
+            if (selectedCars.includes(carId)) {
+                selectedCars = selectedCars.filter(id => id !== carId);
+                this.classList.remove("active");
+            } else {
+                if (selectedCars.length < 2) {
+                    selectedCars.push(carId);
+                    this.classList.add("active");
+                }
+            }
+
+            // Se já tiver 2 → vai para página de comparação
+            if (selectedCars.length === 2) {
+                goToCompare();
+            }
+        });
+    });
+});

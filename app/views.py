@@ -248,14 +248,16 @@ def criar_funcionario(request):
 # Veículos
 class CompararView(View):
     def get(self, request):
-        # Lógica para comparar carros (poderia receber IDs via GET)
         carro1_id = request.GET.get('carro1')
         carro2_id = request.GET.get('carro2')
         
-        carro1 = Carro.objects.get(pk=carro1_id) if carro1_id else None
-        carro2 = Carro.objects.get(pk=carro2_id) if carro2_id else None
+        carro1 = get_object_or_404(Carro, pk=carro1_id) if carro1_id else None
+        carro2 = get_object_or_404(Carro, pk=carro2_id) if carro2_id else None
         
-        return render(request, 'veiculo/comparar.html', {'carro1': carro1, 'carro2': carro2})
+        return render(request, 'veiculo/comparar.html', {
+            'carro1': carro1,
+            'carro2': carro2
+        })
 
 
 class DetalhesView(View):

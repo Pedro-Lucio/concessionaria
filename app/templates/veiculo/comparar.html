@@ -1,7 +1,55 @@
-{% extends 'base.html' %}
-
-{% block title %}Comparar os carros X e X{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Comparação de Veículos</h2>
 
+  <div class="row">
+    <!-- Coluna Carro 1 -->
+    <div class="col-md-6">
+      {% if carro1 %}
+      <div class="card shadow-sm">
+        <img src="{{ carro1.imagens.first.foto_url }}" class="card-img-top" alt="{{ carro1 }}">
+        <div class="card-body">
+          <h4>{{ carro1.marca }} {{ carro1.modelo }} ({{ carro1.ano }})</h4>
+          <p><strong>Cor:</strong> {{ carro1.cor }}</p>
+          <p><strong>Tipo:</strong> {{ carro1.tipo }}</p>
+          <p><strong>Motor:</strong> {{ carro1.motor }}</p>
+          <p><strong>Câmbio:</strong> {{ carro1.cambio }}</p>
+          <p><strong>Combustível:</strong> {{ carro1.combustivel }}</p>
+          <p><strong>KM:</strong> {{ carro1.km }}</p>
+          <p><strong>Consumo Cidade:</strong> {{ carro1.consumo_cidade }} km/l</p>
+          <p><strong>Consumo Estrada:</strong> {{ carro1.consumo_estrada }} km/l</p>
+          <h5 class="text-success">R$ {{ carro1.valor }}</h5>
+        </div>
+      </div>
+      {% else %}
+      <p class="text-muted">Nenhum carro selecionado.</p>
+      {% endif %}
+    </div>
+
+    <!-- Coluna Carro 2 -->
+    <div class="col-md-6">
+      {% if carro2 %}
+      <div class="card shadow-sm">
+        <img src="{{ carro2.imagens.first.foto_url }}" class="card-img-top" alt="{{ carro2 }}">
+        <div class="card-body">
+          <h4>{{ carro2.marca }} {{ carro2.modelo }} ({{ carro2.ano }})</h4>
+          <p><strong>Cor:</strong> {{ carro2.cor }}</p>
+          <p><strong>Tipo:</strong> {{ carro2.tipo }}</p>
+          <p><strong>Motor:</strong> {{ carro2.motor }}</p>
+          <p><strong>Câmbio:</strong> {{ carro2.cambio }}</p>
+          <p><strong>Combustível:</strong> {{ carro2.combustivel }}</p>
+          <p><strong>KM:</strong> {{ carro2.km }}</p>
+          <p><strong>Consumo Cidade:</strong> {{ carro2.consumo_cidade }} km/l</p>
+          <p><strong>Consumo Estrada:</strong> {{ carro2.consumo_estrada }} km/l</p>
+          <h5 class="text-success">R$ {{ carro2.valor }}</h5>
+        </div>
+      </div>
+      {% else %}
+      <p class="text-muted">Nenhum carro selecionado.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
 {% endblock %}
