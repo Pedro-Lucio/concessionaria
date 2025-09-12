@@ -4,8 +4,7 @@
 <div class="container my-4">
     <div class="card shadow border-0">
         <div class="card-header bg-primary text-white">
-            <h4 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Agendar Test Drive - {{ carro.marca }} {{
-                carro.modelo }}</h4>
+            <h4 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Agendar Test Drive - {{ carro.marca }} {{ carro.modelo }}</h4>
         </div>
 
         <div class="card-body">
@@ -86,7 +85,8 @@
                     <div class="time-slots-container bg-light p-3 rounded h-100">
                         <h6 class="mb-3 text-primary"><i class="bi bi-clock me-2"></i>Horários</h6>
 
-                        <form method="post" id="agendamentoForm">
+                        <form method="post" id="agendamentoForm"
+                            onsubmit="return confirm('Tem certeza que deseja agendar este test drive?');">
                             {% csrf_token %}
                             <input type="hidden" name="data" value="{{ selected_date|date:'Y-m-d' }}">
 
@@ -126,9 +126,11 @@
                                 <a href="{% url 'detalhes' pk=carro.id %}" class="btn btn-outline-secondary">
                                     <i class="bi bi-x-lg me-1"></i> Cancelar
                                 </a>
+                                {% if horarios_disponiveis %}
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-check-lg me-1"></i> Agendar
                                 </button>
+                                {% endif %}
                             </div>
                         </form>
                     </div>
@@ -138,7 +140,7 @@
     </div>
 </div>
 
-{% if show_popup %}
+{% if show_popup and qr_url %}
 <div id="popupMessage" style="
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -148,7 +150,7 @@
     align-items: center;
     z-index: 9999;
 ">
-  <div style="
+    <div style="
       background: white;
       padding: 30px;
       border-radius: 10px;
@@ -156,10 +158,17 @@
       max-width: 400px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   ">
-    {% for message in messages %}
-      <p>{{ message }}</p>
-    {% endfor %}
-    <button id="okButton" style="
+        <h5>Agendamento Confirmado ✅</h5>
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+        <p>Apresente este QR code na recepção:</p>
+        <img src="{{ qr_url }}" alt="QR Code" style="margin: 15px 0; border-radius: 8px;">
+        <div>
+            <a href="{{ qr_url }}" target="_blank" class="btn btn-outline-primary">Abrir em nova aba</a>
+        </div>
+        <button id="okButton" style="
+        margin-top: 15px;
         padding: 10px 20px;
         border: none;
         background: #007bff;
@@ -168,15 +177,16 @@
         cursor: pointer;
         font-size: 16px;
     ">OK</button>
-  </div>
+    </div>
 </div>
 
 <script>
-  document.getElementById('okButton').onclick = function() {
-    window.location.href = "{% url 'index' %}";
-  };
+    document.getElementById('okButton').onclick = function () {
+        window.location.href = "{% url 'index' %}";
+    };
 </script>
 {% endif %}
+
 
 
 {% endblock %}

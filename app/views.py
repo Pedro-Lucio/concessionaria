@@ -245,6 +245,10 @@ def criar_funcionario(request):
 
 
 
+
+
+
+
 # Veículos
 class CompararView(View):
     def get(self, request):
@@ -305,34 +309,32 @@ def financiamento_calculo(request, carro_id):
 
 
 
+
+
 # Agendar test drive
 @login_required
 def agendar_test_drive(request, carro_id):
     carro = get_object_or_404(Carro, pk=carro_id)
     hoje = date.today()
     agora = datetime.now().time()
-    
-    # Controle de navegação entre meses
+
     month = int(request.GET.get('month', hoje.month))
     year = int(request.GET.get('year', hoje.year))
-    
-    # Limita navegação ao mês atual e próximo
+
     max_date = hoje + timedelta(days=30)
     if month not in [hoje.month, max_date.month] or year not in [hoje.year, max_date.year]:
         month = hoje.month
         year = hoje.year
-    
-    # Data selecionada
+
     selected_date_str = request.GET.get('data', hoje.strftime('%Y-%m-%d'))
     try:
         selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
     except ValueError:
         selected_date = hoje
-    
-    # Configuração do calendário
+
     cal = monthcalendar(year, month)
     month_name = datetime(year, month, 1).strftime('%B').capitalize()
-    
+
     calendario_completo = []
     for week in cal:
         semana = []
@@ -351,29 +353,29 @@ def agendar_test_drive(request, carro_id):
                     'is_available': dia_data >= hoje and not is_weekend
                 })
         calendario_completo.append(semana)
-    
+
     is_weekend_selected = selected_date.weekday() >= 5 if selected_date else False
-    
+
     horarios_disponiveis = []
     if selected_date >= hoje and not is_weekend_selected:
         horarios_agendados = TestDrive.objects.filter(
             carro=carro,
             data=selected_date
         ).values_list('horario', flat=True)
-        
+
         for hora in range(8, 18):
             horario = time(hora, 0)
             if (selected_date != hoje or horario > agora) and horario not in horarios_agendados:
                 horarios_disponiveis.append(horario)
-    
-    # Flag para mostrar popup
+
     show_popup = False
+    qr_url = None
 
     if request.method == 'POST':
         try:
             data = datetime.strptime(request.POST.get('data'), '%Y-%m-%d').date()
             horario = datetime.strptime(request.POST.get('horario'), '%H:%M').time()
-            
+
             if data < hoje or (data == hoje and horario < agora):
                 messages.error(request, "Não é possível agendar no passado")
             elif data.weekday() >= 5:
@@ -381,17 +383,21 @@ def agendar_test_drive(request, carro_id):
             elif TestDrive.objects.filter(carro=carro, data=data, horario=horario).exists():
                 messages.warning(request, "Horário já reservado")
             else:
-                TestDrive.objects.create(
+                agendamento = TestDrive.objects.create(
                     carro=carro,
                     data=data,
                     horario=horario,
                     usuario=request.user
                 )
-                messages.success(request, f"Test drive agendado para {data.strftime('%d/%m/%Y')} às {horario.strftime('%H:%M')}")
-                show_popup = True  # dispara o popup
+                # Dados para o QR code
+                dados_qr = f"Agendamento: {agendamento.carro.marca} {agendamento.carro.modelo} - {agendamento.data} às {agendamento.horario} - Usuário: {request.user.username}"
+                qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={dados_qr}"
+
+                messages.success(request, f"Test drive agendado com sucesso!")
+                show_popup = True
         except Exception as e:
             messages.error(request, f"Erro: {str(e)}")
-    
+
     context = {
         'carro': carro,
         'hoje': hoje,
@@ -404,13 +410,40 @@ def agendar_test_drive(request, carro_id):
         'month_name': month_name,
         'show_prev': month > hoje.month or year > hoje.year,
         'show_next': (month < max_date.month and year <= max_date.year) or (year < max_date.year),
-        'show_popup': show_popup
+        'show_popup': show_popup,
+        'qr_url': qr_url
     }
     return render(request, 'agendamento/agendar_test_drive.html', context)
 
 
 
 
+# Usuário consegue ver os agendamentos que fez
+@login_required
+def meus_agendamentos(request):
+    hoje = date.today()
+    amanha = hoje + timedelta(days=1)
+
+    # buscar apenas os agendamentos do usuário logado
+    agendamentos = TestDrive.objects.filter(usuario=request.user).order_by('data', 'horario')
+
+    # cancelar agendamento (POST)
+    if request.method == 'POST':
+        agendamento_id = request.POST.get('agendamento_id')
+        agendamento = get_object_or_404(TestDrive, id=agendamento_id, usuario=request.user)
+        
+        if agendamento.data >= amanha:  # só pode cancelar até 1 dia antes
+            agendamento.delete()
+            messages.success(request, "Agendamento cancelado com sucesso.")
+        else:
+            messages.error(request, "Este agendamento não pode mais ser cancelado.")
+        return redirect('meus_agendamentos')
+
+    return render(request, 'agendamento/meus_agendamentos.html', {
+        'agendamentos': agendamentos,
+        'hoje': hoje,
+        'amanha': amanha,
+    })
 
 
 

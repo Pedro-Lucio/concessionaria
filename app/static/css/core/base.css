@@ -77,3 +77,91 @@ html::-webkit-scrollbar-thumb {
     color: var(--main);
     font-weight: 800;
 }
+
+/* Para as mensagens que aparecem na tela */
+.messages {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+    max-width: 340px;
+}
+
+.alert {
+    position: relative;
+    padding: 12px 12px 20px 12px;
+    /* espaço para a barra */
+    border-radius: 8px;
+    font-size: 13px;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(15, 20, 25, 0.06);
+    min-width: 200px;
+    overflow: hidden;
+    pointer-events: auto;
+    transition: opacity .25s ease, transform .25s ease;
+}
+
+.alert-success {
+    background: #2e8b57;
+}
+
+.alert-info {
+    background: #0d6efd;
+}
+
+.alert-warning {
+    background: #ffb703;
+    color: #222;
+}
+
+.alert-error,
+.alert-danger {
+    background: #d9534f;
+}
+
+.alert-content {
+    padding-right: 28px;
+}
+
+.msg-close {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    border: 0;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    line-height: 1;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.alert-warning .msg-close {
+    background: rgba(0, 0, 0, 0.06);
+    color: #222;
+}
+
+.alert.fade-out {
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+}
+
+/* timer bar */
+.timer-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.7);
+    width: 100%;
+    transition: width linear;
+}

@@ -40,6 +40,7 @@ urlpatterns = [
     path('comparar/', views.CompararView.as_view(), name='comparar'),
     # Agendamento
     path('carro/<int:carro_id>/test-drive/', views.agendar_test_drive, name='agendar_test_drive'),
+    path('meus_agendamentos/', views.meus_agendamentos, name='meus_agendamentos'),
     # Páginas de financiamento
     path('financiamento/<int:carro_id>/', views.financiamento_calculo, name='financiamento'),
 
@@ -78,4 +79,3 @@ urlpatterns = [
     path('funcionario/<int:pk>/', FuncionarioDetailView.as_view(), name='funcionario_detalhado'),
     path('funcionario/novo/', views.criar_funcionario, name='criar_funcionario'),
 ]
-

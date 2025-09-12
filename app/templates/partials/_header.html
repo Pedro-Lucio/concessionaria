@@ -39,8 +39,8 @@
                     <a href="{% url 'meu_perfil' %}" class="dropdown-item">
                         <i class="fa-solid fa-user"></i> Meu Perfil
                     </a>
-                    <a href="#" class="dropdown-item">
-                        <i class="fa-solid fa-book"></i> #
+                    <a href="{% url 'meus_agendamentos' %}" class="dropdown-item">
+                        <i class="fa-solid fa-book"></i> Meus Agendamentos
                     </a>
                     <div class="divisor"></div>
                     <form action="{% url 'logout' %}" method="post"

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ carro.marca }} {{ carro.modelo }} {{ carro.ano }} | Concessionária Premium{% endblock %}
+{% block title %}{{ carro.marca }} {{ carro.modelo }} {{ carro.ano }} | Pezza Veículos{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -225,16 +225,6 @@
                         </button>
                         {% endif %}
                     </div>
-
-                    <!-- Miniaturas -->
-                    {% if carro.imagens.all.count > 1 %}
-                    <div class="car-thumbnails">
-                        {% for imagem in carro.imagens.all %}
-                        <img src="{{ imagem.foto_url }}" class="car-thumbnail {% if forloop.first %}active{% endif %}"
-                            data-bs-target="#carroCarousel" data-bs-slide-to="{{ forloop.counter0 }}">
-                        {% endfor %}
-                    </div>
-                    {% endif %}
                 </div>
 
                 <!-- Informações principais -->
@@ -313,9 +303,22 @@
 
                     <div class="text-center">
                         <p class="mb-2">Precisa de ajuda?</p>
-                        <a href="#" class="btn btn-outline-primary">
+                        {% if carro.valor <= 50000 %} <a
+                            href="https://wa.me/+5535997465091?text=Olá!%20Tenho%20interesse%20no%20carro%20{{ carro.marca }}%20{{ carro.modelo }}%20({{ carro.ano }}).%20Poderia%20me%20enviar%20mais%20informações%20por%20favor?"
+                            class="btn btn-outline-primary">
                             <i class="bi bi-whatsapp me-2"></i>Falar com consultor
-                        </a>
+                            </a>
+                            {% elif carro.valor <= 150000 %} <a
+                                href="https://wa.me/+5535997216613?text=Olá!%20Tenho%20interesse%20no%20carro%20{{ carro.marca }}%20{{ carro.modelo }}%20({{ carro.ano }}).%20Poderia%20me%20enviar%20mais%20informações%20por%20favor?"
+                                class="btn btn-outline-primary">
+                                <i class="bi bi-whatsapp me-2"></i>Falar com consultor
+                                </a>
+                                {% elif carro.valor > 500000 %}
+                                <a href="https://wa.me/+5535997303649?text=Olá!%20Tenho%20interesse%20no%20carro%20{{ carro.marca }}%20{{ carro.modelo }}%20({{ carro.ano }}).%20Poderia%20me%20enviar%20mais%20informações%20por%20favor?"
+                                    class="btn btn-outline-primary">
+                                    <i class="bi bi-whatsapp me-2"></i>Falar com consultor
+                                </a>
+                                {% endif %}
                     </div>
                 </div>
             </div>

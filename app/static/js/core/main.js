@@ -30,3 +30,34 @@ document.addEventListener('click', function (e) {
         dropdown.style.transform = 'translateY(-10px)';
     }
 });
+
+// Para as mensagens que aparecem na tela
+document.addEventListener('DOMContentLoaded', function () {
+    const alerts = document.querySelectorAll('.messages .alert');
+
+    alerts.forEach(function (el) {
+        const duration = parseInt(el.dataset.duration, 10) || 5000;
+        const closeBtn = el.querySelector('.msg-close');
+        const timerBar = el.querySelector('.timer-bar');
+
+        // animação da barra
+        if (timerBar) {
+            setTimeout(() => { timerBar.style.transition = `width ${duration}ms linear`; timerBar.style.width = '0%'; }, 10);
+        }
+
+        // click no X
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                el.classList.add('fade-out');
+                setTimeout(() => el.remove(), 280);
+            });
+        }
+
+        // remoção automática
+        setTimeout(() => {
+            if (!document.contains(el)) return;
+            el.classList.add('fade-out');
+            setTimeout(() => { if (el.parentNode) el.remove(); }, 280);
+        }, duration);
+    });
+});
