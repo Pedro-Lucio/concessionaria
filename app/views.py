@@ -27,6 +27,8 @@ from calendar import monthcalendar, monthrange
 import locale
 locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
 
+from django.http import JsonResponse
+
 
 
 
@@ -472,3 +474,125 @@ class ReciclagemView(View):
 class ConsultarFIPEView(View):
     def get(self, request):
         return render(request, 'consultarfipe.html')
+    
+
+
+
+
+
+# CHAT
+# views.py
+class AssistenteView(View):
+    perguntas = [
+        {"id": 1, "campo": "marca", "texto": "Você tem alguma marca favorita? (Chevrolet, Ford, Fiat, Toyota, etc.)"},
+        {"id": 2, "campo": "tipo", "texto": "Prefere SUV, hatch, sedã, picape ou tanto faz?"},
+        {"id": 3, "campo": "cambio", "texto": "Câmbio automático, manual ou tanto faz?"},
+        {"id": 4, "campo": "combustivel", "texto": "Gasolina, álcool, flex, diesel ou híbrido?"},
+        {"id": 5, "campo": "cor", "texto": "Qual cor você prefere? Preto, branco, prata, vermelho...?"},
+        {"id": 6, "campo": "ano", "texto": "Quer um carro mais novo (2019+), mais antigo ou tanto faz?"},
+        {"id": 7, "campo": "km", "texto": "Prefere até 50 mil km, até 100 mil km, mais rodado, ou tanto faz?"},
+        {"id": 8, "campo": "valor", "texto": "Qual faixa de preço? Até 50 mil, 50 a 100 mil, acima de 100 mil ou tanto faz?"},
+        {"id": 9, "campo": "uso", "texto": "Vai usar mais na cidade, na estrada ou em ambos?"},
+        {"id": 10, "campo": "tamanho", "texto": "Prefere um carro mais compacto ou espaçoso?"},
+        {"id": 11, "campo": "desempenho", "texto": "Prefere economia de combustível ou mais potência?"},
+        {"id": 12, "campo": "tecnologia", "texto": "Quer um carro mais simples ou com bastante tecnologia (multimídia, câmera, etc.)?"},
+        {"id": 13, "campo": "estilo", "texto": "Prefere um carro mais discreto ou mais chamativo?"},
+        {"id": 14, "campo": "manutencao", "texto": "Prefere carros com manutenção mais barata ou tanto faz?"},
+        {"id": 15, "campo": "preferencia_final", "texto": "Se tivesse que escolher só um ponto mais importante, seria preço, conforto ou desempenho?"},
+    ]
+
+    def get(self, request):
+        primeira = self.perguntas[0]
+        opcoes = self._get_opcoes(primeira["campo"])
+        return JsonResponse({"id": primeira["id"], "pergunta": primeira["texto"], "opcoes": opcoes})
+
+    def post(self, request):
+        id = int(request.POST.get("id"))
+        resposta = request.POST.get("resposta")
+
+        request.session.setdefault("chat_respostas", {})
+        respostas = request.session["chat_respostas"]
+        respostas[self.perguntas[id-1]["campo"]] = resposta
+        request.session.modified = True
+
+        if id < len(self.perguntas):
+            prox = self.perguntas[id]
+            opcoes = self._get_opcoes(prox["campo"])
+            return JsonResponse({"id": prox["id"], "pergunta": prox["texto"], "opcoes": opcoes})
+
+        carro = self._achar_mais_proximo(respostas)
+        return JsonResponse({"final": True, "carro": carro})
+
+    def _get_opcoes(self, campo):
+        predefinidas = {
+            "marca": ["Chevrolet", "Ford", "Fiat", "Toyota", "Honda", "Volkswagen", "Renault", "Hyundai", "Tanto faz"],
+            "tipo": ["SUV", "Hatch", "Sedã", "Picape", "Tanto faz"],
+            "cambio": ["Automático", "Manual", "Tanto faz"],
+            "combustivel": ["Gasolina", "Álcool", "Flex", "Diesel", "Híbrido", "Tanto faz"],
+            "cor": ["Preto", "Branco", "Prata", "Vermelho", "Azul", "Cinza", "Tanto faz"],
+            "ano": ["Mais novos (2019+)", "Mais antigos", "Tanto faz"],
+            "km": ["Até 50 mil km", "50 a 100 mil km", "Mais de 100 mil km", "Tanto faz"],
+            "valor": ["Até 50 mil", "50 a 100 mil", "Acima de 100 mil", "Tanto faz"],
+            "uso": ["Cidade", "Estrada", "Ambos"],
+            "tamanho": ["Compacto", "Espaçoso"],
+            "desempenho": ["Econômico", "Potente"],
+            "tecnologia": ["Simples", "Tecnológico"],
+            "estilo": ["Discreto", "Chamativo"],
+            "manutencao": ["Barata", "Tanto faz"],
+            "preferencia_final": ["Preço", "Conforto", "Desempenho"],
+        }
+        return predefinidas.get(campo, ["Tanto faz"])
+
+    def _achar_mais_proximo(self, respostas):
+        carros = Carro.objects.all()
+        melhor_match = None
+        melhor_pontuacao = -1
+
+        for carro in carros:
+            pontos = 0
+            if respostas.get("marca") and respostas["marca"] != "Tanto faz" and carro.marca == respostas["marca"]:
+                pontos += 1
+            if respostas.get("tipo") and respostas["tipo"] != "Tanto faz" and carro.tipo == respostas["tipo"]:
+                pontos += 1
+            if respostas.get("cambio") and respostas["cambio"] != "Tanto faz" and carro.cambio == respostas["cambio"]:
+                pontos += 1
+            if respostas.get("combustivel") and respostas["combustivel"] != "Tanto faz" and carro.combustivel == respostas["combustivel"]:
+                pontos += 1
+            if respostas.get("cor") and respostas["cor"] != "Tanto faz" and carro.cor == respostas["cor"]:
+                pontos += 1
+
+            # Ano
+            if respostas.get("ano") == "Mais novos (2019+)" and carro.ano >= 2019:
+                pontos += 1
+            elif respostas.get("ano") == "Mais antigos" and carro.ano < 2019:
+                pontos += 1
+
+            # Km
+            if respostas.get("km") == "Até 50 mil km" and carro.km <= 50000:
+                pontos += 1
+            elif respostas.get("km") == "50 a 100 mil km" and 50000 <= carro.km <= 100000:
+                pontos += 1
+            elif respostas.get("km") == "Mais de 100 mil km" and carro.km >= 100000:
+                pontos += 1
+
+            # Valor
+            if respostas.get("valor") == "Até 50 mil" and carro.valor <= 50000:
+                pontos += 1
+            elif respostas.get("valor") == "50 a 100 mil" and 50000 <= carro.valor <= 100000:
+                pontos += 1
+            elif respostas.get("valor") == "Acima de 100 mil" and carro.valor >= 100000:
+                pontos += 1
+
+            # Demais campos a gente pode ir refinando depois
+            if pontos > melhor_pontuacao:
+                melhor_match = carro
+                melhor_pontuacao = pontos
+
+        if melhor_match:
+            return {
+                "nome": f"{melhor_match.marca} {melhor_match.modelo} {melhor_match.ano}",
+                "valor": f"R$ {melhor_match.valor}",
+                "url": f"/carros/{melhor_match.id}/",
+                "pontos": melhor_pontuacao
+            }
+        return None
