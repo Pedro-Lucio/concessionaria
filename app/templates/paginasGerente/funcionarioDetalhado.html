@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detalhes do Vendedor</title>
+</head>
+<body>
+    <h1>{{ vendedor.nome }}</h1>  <!-- Usando context_object_name -->
+    <p><strong>CPF:</strong> {{ vendedor.cpf }}</p>
+    <p><strong>Data de Admissão:</strong> {{ vendedor.data_admissao|date:"d/m/Y" }}</p>
+    <a href="{% url 'vendedor_list' %}">Voltar</a>
+</body>
+</html>

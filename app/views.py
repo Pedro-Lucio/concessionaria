@@ -191,63 +191,6 @@ def meu_perfil(request):
 
 
 
-# Lista de funcionários (usuários com ocupação = 'funcionario')
-class FuncionarioListView(ListView):
-    model = Usuario
-    template_name = 'funcionario/lista.html'
-    context_object_name = 'funcionarios'
-
-    def get_queryset(self):
-        return Usuario.objects.filter(ocupacao='funcionario')
-
-
-# Detalhe de um funcionário específico
-class FuncionarioDetailView(DetailView):
-    model = Usuario
-    template_name = 'funcionario/detalhado.html'
-    context_object_name = 'funcionario'
-
-    def get_queryset(self):
-        return Usuario.objects.filter(ocupacao='funcionario')
-
-
-# Gerente cria funcionário
-@login_required
-def criar_funcionario(request):
-    if not request.user.is_superuser and request.user.usuario.ocupacao != "gerente":
-        return redirect("home")  # só gerente pode criar funcionário
-
-    if request.method == "POST":
-        username = request.POST["username"]
-        senha = request.POST["senha"]
-        nome = request.POST["nome"]
-        telefone = request.POST["telefone"]
-
-        user = User.objects.create_user(username=username, password=senha)
-
-        # o signal já criou um Usuario como cliente
-        usuario = user.usuario
-        usuario.nome = nome
-        usuario.telefone = telefone
-        usuario.ocupacao = "funcionario"
-        usuario.save()
-
-        return redirect("lista_funcionarios")
-
-    return render(request, "usuarios/criar_funcionario.html")
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -480,8 +423,12 @@ class ConsultarFIPEView(View):
 
 
 
+
+
+
+
+
 # CHAT
-# views.py
 class AssistenteView(View):
     perguntas = [
         {"id": 1, "campo": "marca", "texto": "Você tem alguma marca favorita? (Chevrolet, Ford, Fiat, Toyota, etc.)"},
@@ -596,3 +543,89 @@ class AssistenteView(View):
                 "pontos": melhor_pontuacao
             }
         return None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Páginas específicas para o gerente
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils.decorators import method_decorator
+from django.utils.dateparse import parse_date
+
+# --- Função auxiliar para verificar se é gerente ---
+def is_gerente(user):
+    return user.is_superuser or getattr(user, "usuario", None) and user.usuario.ocupacao == "gerente"
+
+
+# View para criar funcionário
+@login_required
+@user_passes_test(is_gerente)
+def criar_funcionario(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        senha = request.POST.get("senha")
+        nome = request.POST.get("nome")
+        telefone = request.POST.get("telefone")
+        email = request.POST.get("email")
+        cpf = request.POST.get("cpf")
+        data_admissao = request.POST.get("data_admissao")
+
+        # Verificar se username já existe
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Esse nome de usuário já existe.")
+            return redirect("criar_funcionario")
+
+        # Criar usuário base
+        user = User.objects.create_user(username=username, password=senha)
+
+        # Atualizar dados do modelo Usuario
+        usuario = user.usuario  # criado pelo signal
+        usuario.nome = nome
+        usuario.telefone = telefone
+        usuario.email = email
+        usuario.ocupacao = "funcionario"
+        usuario.cpf = cpf
+        usuario.data_admissao = parse_date(data_admissao) if data_admissao else None
+        usuario.save()
+
+        messages.success(request, f"Funcionário {nome} cadastrado com sucesso!")
+        return redirect("lista_funcionarios")
+
+    return render(request, "paginasGerente/funcionarioCriar.html")
+
+
+# Lista de funcionários
+@method_decorator([login_required, user_passes_test(is_gerente)], name="dispatch")
+class FuncionarioListView(ListView):
+    model = Usuario
+    template_name = 'paginasGerente/funcionarioLista.html'
+    context_object_name = 'funcionarios'
+
+    def get_queryset(self):
+        return Usuario.objects.filter(ocupacao='funcionario')
+
+
+# Detalhe de funcionário
+@method_decorator([login_required, user_passes_test(is_gerente)], name="dispatch")
+class FuncionarioDetailView(DetailView):
+    model = Usuario
+    template_name = 'paginasGerente/funcionarioDetalhado.html'
+    context_object_name = 'funcionario'
+
+    def get_queryset(self):
+        return Usuario.objects.filter(ocupacao='funcionario')

@@ -42,6 +42,16 @@
                     <a href="{% url 'meus_agendamentos' %}" class="dropdown-item">
                         <i class="fa-solid fa-book"></i> Meus Agendamentos
                     </a>
+                    <!-- Exclusivo para Gerente -->
+                    {% if user.is_authenticated and user.usuario.ocupacao == "gerente" %}
+                    <a href="{% url 'lista_funcionarios' %}" class="dropdown-item">
+                        <i class="fa-solid fa-book"></i> Lista Funcionários
+                    </a>
+                    <a href="{% url 'criar_funcionario' %}" class="dropdown-item">
+                        <i class="fa-solid fa-book"></i> Criar Funcionário
+                    </a>
+                    {% endif %}
+                    <!-- Fim exclusivo para gerente -->
                     <div class="divisor"></div>
                     <form action="{% url 'logout' %}" method="post"
                         class="dropdown-item ps-3 pe-3 bg-transparent border-0">

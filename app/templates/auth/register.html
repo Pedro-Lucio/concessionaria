@@ -130,15 +130,6 @@
         <div class="auth-card">
             <h2 class="auth-title">Criar Conta no <span class="destaque">Pezza</span>Veículos</h2>
 
-            {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {% endfor %}
-            {% endif %}
-
             <form method="post">
                 {% csrf_token %}
 

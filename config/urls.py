@@ -71,19 +71,18 @@ urlpatterns = [
 
 
 
+    # Chat
+    path("assistente/", AssistenteView.as_view(), name="assistente"),  # endpoint JSON
+    path("assistente-chat/", TemplateView.as_view(template_name="assistente.html"), name="assistente_chat"),  # página visual
+
+
+
+
 
     # Urls disponiveis somente para gerente
     
     # Funcionários
-    path('funcionario/', FuncionarioListView.as_view(), name='funcionario_lista'),
-    path('funcionario/<int:pk>/', FuncionarioDetailView.as_view(), name='funcionario_detalhado'),
-    path('funcionario/novo/', views.criar_funcionario, name='criar_funcionario'),
-
-
-
-
-
-    # Chat
-    path("assistente/", AssistenteView.as_view(), name="assistente"),  # endpoint JSON
-    path("assistente-chat/", TemplateView.as_view(template_name="assistente.html"), name="assistente_chat"),  # página visual
+    path("funcionario/novo/", criar_funcionario, name="criar_funcionario"),
+    path("funcionario/", FuncionarioListView.as_view(), name="lista_funcionarios"),
+    path("funcionario/<int:pk>/", FuncionarioDetailView.as_view(), name="funcionario_detalhado"),
 ]
