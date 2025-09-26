@@ -32,7 +32,18 @@
             <div class="perfil-container">
                 <button class="perfil-btn">
                     <i class="bi bi-person-circle me-1" style="color: var(--main);"></i>
-                    <span class="nome-usuario">{{ user.username }}</span>
+                    <span class="nome-usuario">
+                        {{ user.username }}
+                        {% if user.is_authenticated and user.usuario.ocupacao == 'cliente' %}
+                        {% if user.usuario.kgs_borracha_doados <= 50 %}
+                            🥉
+                        {% elif user.usuario.kgs_borracha_doados <= 100 %}
+                            🥈
+                        {% else %}
+                            🥇
+                        {% endif %}
+                        {% endif %}
+                    </span>
                     <i class="fa-solid fa-caret-down"></i>
                 </button>
                 <div class="dropdown-perfil">
@@ -42,7 +53,8 @@
                     <a href="{% url 'meus_agendamentos' %}" class="dropdown-item">
                         <i class="fa-solid fa-book"></i> Meus Agendamentos
                     </a>
-                    <!-- Exclusivo para Gerente -->
+
+                    <!-- Exclusivo para gerente -->
                     {% if user.is_authenticated and user.usuario.ocupacao == "gerente" %}
                     <a href="{% url 'lista_funcionarios' %}" class="dropdown-item">
                         <i class="fa-solid fa-book"></i> Lista Funcionários
@@ -52,6 +64,15 @@
                     </a>
                     {% endif %}
                     <!-- Fim exclusivo para gerente -->
+                    
+                    <!-- Exclusivo para funcionário e gerente -->
+                    {% if user.is_authenticated and user.usuario.ocupacao in "funcionario,gerente" %}
+                    <a href="{% url 'salvar_venda' %}" class="dropdown-item">
+                        <i class="fa-solid fa-book"></i> Registrar venda
+                    </a>
+                    {% endif %}
+                    <!-- Fim exclusivo para funcionário e gerente -->
+                    
                     <div class="divisor"></div>
                     <form action="{% url 'logout' %}" method="post"
                         class="dropdown-item ps-3 pe-3 bg-transparent border-0">

@@ -50,13 +50,152 @@
     .form-check-label {
         cursor: pointer;
     }
+
+
+
+
+
+
+
+
+
+
+
+    /* Botão do balão */
+    #chat-balao {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #0d6efd;
+        color: white;
+        font-size: 24px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s, background 0.3s;
+        z-index: 10000;
+    }
+
+    #chat-balao:hover {
+        background: #0b5ed7;
+        transform: scale(1.1);
+    }
+
+    /* Caixa de chat */
+    .chat-box {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        width: 350px;
+        max-height: 500px;
+        background: #fefefe;
+        border-radius: 15px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        display: none;
+        /* escondido até clicar */
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 10001;
+    }
+
+    /* Cabeçalho */
+    .chat-header {
+        background: linear-gradient(90deg, #005ecb, #81C784);
+        color: white;
+        padding: 12px;
+        text-align: center;
+        font-size: 14px;
+        position: relative;
+    }
+
+    .chat-header h1 {
+        font-size: 16px;
+        margin: 0;
+    }
+
+    .chat-header p {
+        font-size: 12px;
+        margin: 2px 0 0 0;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    /* Corpo */
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 400px;
+        padding: 10px;
+    }
+
+    .mensagens {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        overflow-y: auto;
+    }
+
+    .bot {
+        background: #eaf1ff;
+        padding: 10px 14px;
+        border-radius: 15px;
+        align-self: flex-start;
+        max-width: 80%;
+    }
+
+    .user {
+        background: #0078ff;
+        color: white;
+        padding: 10px 14px;
+        border-radius: 15px;
+        align-self: flex-end;
+        max-width: 80%;
+    }
+
+    .opcoes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 10px;
+    }
+
+    .opcoes button {
+        flex: 1;
+        min-width: 100px;
+        padding: 8px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background: #0078ff;
+        color: white;
+        font-size: 13px;
+        transition: 0.2s;
+    }
+
+    .opcoes button:hover {
+        background: #005ecb;
+    }
 </style>
 <section>
+    {% include 'chat.html' %}
+
     <div>
         <div class="card">
             <div class="card-body">
                 <button type="button" class="btn btn-outline-primary btn-block mt-3">Comparar</button>
-                <a href="{% url 'assistente_chat' %}">Chat</a>
+
                 <h5 class="card-title">Filtrar</h5>
                 <form id="filter-form">
                     <div class="form-group">
@@ -66,10 +205,10 @@
                                 <span class="slider-track"></span>
 
                                 <input type="range" id="valorMin" name="valorMin" class="valorMin" min="{{ preco_min }}"
-                                    max="{{ preco_max }}" step="1000" value="{{ preco_min }}" oninput="slideMin()">
+                                    max="{{ preco_max }}" step="1" value="{{ preco_min }}" oninput="slideMin()">
 
                                 <input type="range" id="valorMax" name="valorMax" class="valorMax" min="{{ preco_min }}"
-                                    max="{{ preco_max }}" step="1000" value="{{ preco_max }}" oninput="slideMax()">
+                                    max="{{ preco_max }}" step="1" value="{{ preco_max }}" oninput="slideMax()">
 
                                 <div class="tooltip min-tooltip"></div>
                                 <div class="tooltip max-tooltip"></div>
@@ -362,6 +501,7 @@
     <div>
         <div class="row" id="carros-container">
             {% for carro in carros %}
+            {% if carro.ativo == True %}
             <div class="col-md-4 mb-4 carro-card" data-marca="{{ carro.marca }}" data-cor="{{ carro.cor }}"
                 data-tipo="{{ carro.tipo }}" data-cambio="{{ carro.cambio }}" data-combustivel="{{ carro.combustivel }}"
                 data-valor="{{ carro.valor }}" data-ano="{{ carro.ano }}" data-km="{{ carro.km }}">
@@ -377,11 +517,10 @@
                         <a href="#" class="btn btn-outline-secondary btn-comparar-card d-none" data-id="{{ carro.id }}">
                             Comparar
                         </a>
-
-
                     </div>
                 </div>
             </div>
+            {% endif %}
             {% endfor %}
         </div>
     </div>

@@ -85,4 +85,11 @@ urlpatterns = [
     path("funcionario/novo/", criar_funcionario, name="criar_funcionario"),
     path("funcionario/", FuncionarioListView.as_view(), name="lista_funcionarios"),
     path("funcionario/<int:pk>/", FuncionarioDetailView.as_view(), name="funcionario_detalhado"),
+
+
+
+
+
+    # Vendas
+    path('salvar/', salvar_venda, name="salvar_venda"),
 ]

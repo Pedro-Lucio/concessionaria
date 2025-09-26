@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  /* Variáveis de cores e estilos */
+  :root {
+    --primary: #0d6efd;
+    --primary-dark: #0a58ca;
+    --primary-light: #e8f2ff;
+    --secondary: #6c757d;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --success: #198754;
+    --success-light: #e9f7ef;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --border: #dee2e6;
+    --radius: 12px;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --transition: all 0.3s ease;
+    --max-width: 900px;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light);
+    margin: 0;
+    padding: 0;
+  }
+
+  .fin-card {
+    max-width: var(--max-width);
+    margin: 2.5rem auto;
+    padding: 2rem;
+    border-radius: var(--radius);
+    background: #fff;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+
+  .fin-card h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.75rem;
+  }
+
+  /* Formulário */
+  .form-label {
+    display: block;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 0.5rem;
+  }
+
+  .form-control, .form-select, textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: var(--transition);
+    font-weight: 500;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+  }
+
+  .form-control:focus, .form-select:focus, textarea:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+  }
+
+  /* Search Box */
+  .search-box {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+
+  .search-box input {
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+  }
+
+  .search-box i {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--secondary);
+  }
+
+  /* Cards Grid */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+  }
+
+  .car-card, .cliente-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .car-card:hover, .cliente-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+  }
+
+  .car-card.selected, .cliente-card.selected {
+    border: 2px solid var(--success);
+    background: var(--success-light);
+  }
+
+  .car-card h4, .cliente-card h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 0.25rem;
+  }
+
+  .car-card p, .cliente-card p {
+    font-size: 0.9rem;
+    color: var(--secondary);
+    margin: 0.25rem 0;
+  }
+
+  /* Botão principal */
+  .btn-primary-custom {
+    display: block;
+    width: 100%;
+    padding: 0.875rem;
+    border-radius: var(--radius);
+    background: var(--success);
+    color: #fff;
+    border: none;
+    font-weight: 700;
+    transition: var(--transition);
+    font-size: 1rem;
+  }
+
+  .btn-primary-custom:hover {
+    background: #157347;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(25, 135, 84, 0.25);
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .fin-card {
+      margin: 1.5rem;
+      padding: 1.5rem;
+    }
+
+    .cards-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .fin-card {
+      margin: 1rem;
+      padding: 1.25rem;
+    }
+  }
+</style>
+
+<div class="fin-card">
+  <h3>Registrar Venda</h3>
+
+  <form method="post" id="venda-form">
+    {% csrf_token %}
+
+    <!-- Escolha do Carro -->
+    <label class="form-label">Selecione o Carro</label>
+    <div class="search-box">
+      <input type="text" id="carroSearch" placeholder="🔍 Buscar carro por modelo, marca ou ano...">
+    </div>
+    <div class="cards-grid" id="carroList">
+      {% for carro in carros %}
+        <div class="car-card" data-id="{{ carro.id }}" data-text="{{ carro.marca }} {{ carro.modelo }} {{ carro.ano }}">
+          <h4>{{ carro.marca }} {{ carro.modelo }}</h4>
+          <p><strong>Ano:</strong> {{ carro.ano }}</p>
+          <p><strong>Preço:</strong> R$ {{ carro.valor }}</p>
+        </div>
+      {% endfor %}
+    </div>
+    <input type="hidden" name="carro" id="carroInput" required>
+
+    <hr>
+
+    <!-- Escolha do Cliente -->
+    <label class="form-label">Selecione o Cliente</label>
+    <div class="search-box">
+      <input type="text" id="clienteSearch" placeholder="🔍 Buscar cliente por nome...">
+    </div>
+    <div class="cards-grid" id="clienteList">
+      {% for cliente in clientes %}
+        <div class="cliente-card" data-id="{{ cliente.id }}" data-text="{{ cliente.nome }}">
+          <h4>{{ cliente.nome }}</h4>
+          <p><strong>Email:</strong> {{ cliente.email }}</p>
+        </div>
+      {% endfor %}
+    </div>
+    <input type="hidden" name="cliente" id="clienteInput" required>
+
+    <hr>
+
+    <!-- Detalhes da Venda -->
+    <label class="form-label">Forma de Pagamento</label>
+    <select name="forma_pagamento" class="form-select" required>
+      <option value="À vista">À vista</option>
+      <option value="Financiamento">Financiamento</option>
+      <option value="Consórcio">Consórcio</option>
+      <option value="Cartão de crédito">Cartão de crédito</option>
+    </select>
+
+    <label class="form-label">Parcelas (se houver)</label>
+    <input type="number" name="parcelas" class="form-control" min="1">
+
+    <label class="form-label">Observações</label>
+    <textarea name="observacoes" class="form-control"></textarea>
+
+    <button type="submit" class="btn-primary-custom">💾 Salvar Venda</button>
+  </form>
+</div>
+
+<script>
+  // Filtro de busca dinâmica
+  function enableSearch(inputId, listId, cardClass) {
+    document.getElementById(inputId).addEventListener("input", function() {
+      let filter = this.value.toLowerCase();
+      document.querySelectorAll(`#${listId} .${cardClass}`).forEach(card => {
+        let text = card.dataset.text.toLowerCase();
+        card.style.display = text.includes(filter) ? "" : "none";
+      });
+    });
+  }
+  enableSearch("carroSearch", "carroList", "car-card");
+  enableSearch("clienteSearch", "clienteList", "cliente-card");
+
+  // Seleção de carro/cliente
+  function enableSelection(listId, cardClass, inputId) {
+    document.querySelectorAll(`#${listId} .${cardClass}`).forEach(card => {
+      card.addEventListener("click", function() {
+        document.querySelectorAll(`#${listId} .${cardClass}`).forEach(c => c.classList.remove("selected"));
+        this.classList.add("selected");
+        document.getElementById(inputId).value = this.dataset.id;
+      });
+    });
+  }
+  enableSelection("carroList", "car-card", "carroInput");
+  enableSelection("clienteList", "cliente-card", "clienteInput");
+</script>
+
+{% endblock %}

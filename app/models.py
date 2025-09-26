@@ -34,6 +34,13 @@ class Usuario(models.Model):
     cpf = models.CharField(max_length=14, unique=True, blank=True, null=True, verbose_name="CPF")
     data_admissao = models.DateField(blank=True, null=True)
 
+    kgs_borracha_doados = models.DecimalField(
+        max_digits=10,  # até 99999999.99
+        decimal_places=2,
+        default=0,
+        verbose_name="Kgs de borracha doados"
+    )
+
     def __str__(self):
         return self.nome or self.user.username
 
@@ -127,6 +134,8 @@ class Carro(models.Model):
     ipva_pago = models.BooleanField(verbose_name="IPVA pago")
     consumo_cidade = models.DecimalField(max_digits=5, decimal_places=1, verbose_name="Consumo na cidade (km/l)")
     consumo_estrada = models.DecimalField(max_digits=5, decimal_places=1, verbose_name="Consumo na estrada (km/l)")
+    
+    ativo = models.BooleanField(default=True, verbose_name="Carro ativo")
 
     def __str__(self):
         return f"{self.marca} {self.modelo} {self.ano}"
@@ -160,82 +169,6 @@ class ImagemCarro(models.Model):
 
 
 
-
-
-
-
-
-
-class Venda(models.Model):
-    FORMA_PAGAMENTO_CHOICES = [
-        ('À vista', 'À vista'),
-        ('Financiamento', 'Financiamento'),
-        ('Consórcio', 'Consórcio'),
-        ('Cartão de crédito', 'Cartão de crédito'),
-    ]
-    
-    carro = models.ForeignKey(
-        Carro, 
-        on_delete=models.PROTECT, 
-        verbose_name="Carro"
-    )
-    vendedor = models.ForeignKey(
-        Usuario, 
-        on_delete=models.PROTECT, 
-        limit_choices_to={'ocupacao': 'funcionario'},  # só mostra funcionários no admin
-        related_name='vendas_realizadas',
-        verbose_name="Vendedor"
-    )
-    cliente = models.ForeignKey(
-        Usuario, 
-        on_delete=models.SET_NULL, 
-        null=True, blank=True,
-        limit_choices_to={'ocupacao': 'cliente'},  # só mostra clientes no admin
-        related_name='compras',
-        verbose_name="Cliente"
-    )
-    data_venda = models.DateTimeField(
-        auto_now_add=True, 
-        verbose_name="Data da venda"
-    )
-    valor_venda = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        verbose_name="Valor da venda"
-    )
-    forma_pagamento = models.CharField(
-        max_length=50, 
-        choices=FORMA_PAGAMENTO_CHOICES, 
-        verbose_name="Forma de pagamento"
-    )
-    parcelas = models.IntegerField(
-        null=True, blank=True, 
-        verbose_name="Parcelas"
-    )
-    observacoes = models.TextField(
-        null=True, blank=True, 
-        verbose_name="Observações"
-    )
-
-    def __str__(self):
-        return f"Venda #{self.id} - {self.carro}"
-
-    class Meta:
-        verbose_name = "Venda"
-        verbose_name_plural = "Vendas"
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Test Drive
 class TestDrive(models.Model):
     carro = models.ForeignKey(Carro, on_delete=models.CASCADE)
@@ -251,3 +184,67 @@ class TestDrive(models.Model):
 
     def __str__(self):
         return f"Test Drive - {self.carro} ({self.data} {self.horario}) - {self.usuario.username if self.usuario else 'Sem usuário'}"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Exclusiva para funcionário e gerente
+
+# Registrar venda
+class Venda(models.Model):
+    FORMA_PAGAMENTO_CHOICES = [
+        ('À vista', 'À vista'),
+        ('Financiamento', 'Financiamento'),
+        ('Consórcio', 'Consórcio'),
+        ('Cartão de crédito', 'Cartão de crédito'),
+    ]
+
+    # Relacionamentos
+    carro = models.ForeignKey(
+        Carro,
+        on_delete=models.PROTECT,
+        verbose_name="Carro"
+    )
+    vendedor = models.ForeignKey(
+        Usuario,
+        on_delete=models.PROTECT,
+        limit_choices_to={'ocupacao': 'funcionario'},
+        related_name='vendas_realizadas',
+        verbose_name="Vendedor"
+    )
+    cliente = models.ForeignKey(
+        Usuario,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        limit_choices_to={'ocupacao': 'cliente'},
+        related_name='compras',
+        verbose_name="Cliente"
+    )
+
+    data_venda = models.DateTimeField(auto_now_add=True, verbose_name="Data da venda")
+    valor_venda = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Valor da venda")
+    forma_pagamento = models.CharField(max_length=50, choices=FORMA_PAGAMENTO_CHOICES, verbose_name="Forma de pagamento")
+    parcelas = models.IntegerField(null=True, blank=True, verbose_name="Parcelas")
+    observacoes = models.TextField(null=True, blank=True, verbose_name="Observações")
+
+    def __str__(self):
+        return f"Venda #{self.id} - {self.carro_nome}"
+
+    class Meta:
+        verbose_name = "Venda"
+        verbose_name_plural = "Vendas"

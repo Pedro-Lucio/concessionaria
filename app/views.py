@@ -43,7 +43,7 @@ class IndexView(View):
             preco_min = float(carros.order_by('valor').first().valor)
             preco_max = float(carros.order_by('-valor').first().valor)
         else:
-            preco_min, preco_max = 0, 100000  
+            preco_min, preco_max = 0, 100000
 
         return render(request, 'index.html', {
             'carros': carros,
@@ -561,15 +561,35 @@ class AssistenteView(View):
 
 
 
-# Páginas específicas para o gerente
 
+
+# Páginas específicas para o funcionário e gerente
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.decorators import method_decorator
 from django.utils.dateparse import parse_date
 
+# --- Função auxiliar para verificar se é funcionario e gerente ---
+def is_funcionario(user):
+    return (user.usuario.ocupacao and user.usuario.ocupacao == "funcionario") or (user.is_superuser and user.usuario.ocupacao == "gerente")
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Páginas específicas para o gerente
+
 # --- Função auxiliar para verificar se é gerente ---
+# or getattr(user, "usuario", None)
 def is_gerente(user):
-    return user.is_superuser or getattr(user, "usuario", None) and user.usuario.ocupacao == "gerente"
+    return user.is_superuser and user.usuario.ocupacao == "gerente"
 
 
 # View para criar funcionário
@@ -629,3 +649,49 @@ class FuncionarioDetailView(DetailView):
 
     def get_queryset(self):
         return Usuario.objects.filter(ocupacao='funcionario')
+
+
+
+
+# Registrar venda
+
+@login_required
+@user_passes_test(is_funcionario)
+def salvar_venda(request):
+    usuario = request.user.usuario  
+
+    if request.method == "POST":
+        carro_id = request.POST.get("carro")
+        cliente_id = request.POST.get("cliente")
+
+        carro = get_object_or_404(Carro, pk=carro_id, ativo=True)
+        cliente = get_object_or_404(Usuario, pk=cliente_id, ocupacao="cliente")
+
+        valor_venda = carro.valor
+        forma_pagamento = request.POST.get("forma_pagamento")
+        parcelas = request.POST.get("parcelas") or None
+        observacoes = request.POST.get("observacoes")
+
+        venda = Venda.objects.create(
+            carro=carro,
+            vendedor=usuario,
+            cliente=cliente,
+            valor_venda=valor_venda,
+            forma_pagamento=forma_pagamento,
+            parcelas=parcelas,
+            observacoes=observacoes,
+        )
+
+        if usuario.ocupacao in "gerente, funcionario":
+            carro.ativo = False
+            carro.save()
+            SolicitacaoVenda.objects.create(venda=venda)
+
+        return redirect("index")
+
+    carros = Carro.objects.filter(ativo=True)
+    clientes = Usuario.objects.filter(ocupacao="cliente")
+    return render(request, "paginasGerente/salvarVenda.html", {
+        "carros": carros,
+        "clientes": clientes,
+    })
