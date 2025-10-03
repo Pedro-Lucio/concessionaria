@@ -1,6 +1,105 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+.container {
+  max-width: 1200px;
+}
+
+h2 {
+  font-weight: 700;
+  font-size: 2rem;
+  letter-spacing: 0.5px;
+  margin-bottom: 2rem;
+  color: #222;
+  text-transform: uppercase;
+  position: relative;
+}
+
+h2::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 4px;
+  background: #007bff;
+  margin: 12px auto 0;
+  border-radius: 2px;
+}
+
+.card {
+  border: none;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+.card-img-top {
+  height: 240px;
+  object-fit: cover;
+  border-bottom: 2px solid #eee;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-body h4 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #222;
+}
+
+.card-body p {
+  font-size: 0.95rem;
+  margin-bottom: 0.6rem;
+  color: #444;
+}
+
+.card-body strong {
+  color: #000;
+  font-weight: 600;
+}
+
+.card-body h5 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  color: #28a745;
+}
+
+/* Comparação em colunas */
+.row {
+  display: flex;
+  gap: 20px;
+}
+
+.col-md-6 {
+  flex: 1;
+  display: flex;
+}
+
+a{
+  align-items: center;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column;
+  }
+  .card-img-top {
+    height: 200px;
+  }
+}
+
+</style>
 <div class="container mt-4">
   <h2 class="text-center mb-4">Comparação de Veículos</h2>
 
@@ -21,6 +120,7 @@
           <p><strong>Consumo Cidade:</strong> {{ carro1.consumo_cidade }} km/l</p>
           <p><strong>Consumo Estrada:</strong> {{ carro1.consumo_estrada }} km/l</p>
           <h5 class="text-success">R$ {{ carro1.valor }}</h5>
+          <a href="{% url 'detalhes' carro1.id %}" class="btn btn-primary">Ver Detalhes</a>
         </div>
       </div>
       {% else %}
@@ -44,6 +144,7 @@
           <p><strong>Consumo Cidade:</strong> {{ carro2.consumo_cidade }} km/l</p>
           <p><strong>Consumo Estrada:</strong> {{ carro2.consumo_estrada }} km/l</p>
           <h5 class="text-success">R$ {{ carro2.valor }}</h5>
+          <a href="{% url 'detalhes' carro1.id %}" class="btn btn-primary">Ver Detalhes</a>
         </div>
       </div>
       {% else %}

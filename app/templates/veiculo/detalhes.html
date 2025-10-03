@@ -6,160 +6,112 @@
 {% block extra_css %}
 <style>
     :root {
+        --main: #0d6efd; /* azul metálico */
         --secondary: #6c757d;
         --light: #f8f9fa;
-        --dark: #212529;
+        --dark: #1c1f23;
         --success: #198754;
+        --danger: #dc3545;
+        --accent: #f1f3f5;
+        --card-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    }
+
+    body {
+        font-family: 'Poppins', 'Roboto', sans-serif;
+        background-color: #f5f6f8;
+        color: var(--dark);
     }
 
     .car-gallery {
-        border-radius: 12px;
+        border-radius: 14px;
         overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        box-shadow: var(--card-shadow);
     }
 
     .car-gallery img {
-        height: 400px;
+        height: 420px;
         object-fit: cover;
         width: 100%;
+        transition: transform 0.5s ease;
     }
 
-    .car-thumbnails {
-        display: flex;
-        gap: 10px;
-        margin-top: 15px;
-    }
-
-    .car-thumbnail {
-        width: 80px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 6px;
-        cursor: pointer;
-        opacity: 0.7;
-        transition: all 0.3s ease;
-    }
-
-    .car-thumbnail:hover,
-    .car-thumbnail.active {
-        opacity: 1;
-        border: 2px solid var(--main);
+    .car-gallery img:hover {
+        transform: scale(1.03);
     }
 
     .car-title {
-        font-weight: 700;
+        font-weight: 800;
+        font-size: 2rem;
         color: var(--dark);
-        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
     .car-price {
-        font-size: 2rem;
+        font-size: 2.4rem;
         font-weight: 700;
         color: var(--main);
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.2rem;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.08);
     }
 
     .specs-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 1rem;
-        margin: 1.5rem 0;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
     }
 
     .spec-card {
-        background: var(--light);
-        border-radius: 10px;
-        padding: 1.2rem;
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
         text-align: center;
-        transition: transform 0.3s ease;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .spec-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 15px rgba(13, 110, 253, 0.1);
+        transform: translateY(-6px);
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.15);
     }
 
     .spec-icon {
-        font-size: 1.8rem;
+        font-size: 2rem;
         color: var(--main);
         margin-bottom: 0.8rem;
     }
 
     .spec-value {
-        font-weight: 600;
-        font-size: 1.1rem;
+        font-weight: 700;
+        font-size: 1.3rem;
         color: var(--dark);
-        margin-bottom: 0.2rem;
+        margin-bottom: 0.3rem;
     }
 
     .spec-label {
         color: var(--secondary);
-        font-size: 0.9rem;
-    }
-
-    .action-card {
-        border-radius: 12px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        border: none;
-        padding: 1.5rem;
-    }
-
-    .btn-primary-custom {
-        background-color: var(--main);
-        border-color: var(--main);
-        padding: 0.8rem 1.5rem;
-        font-weight: 600;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary-custom:hover {
-        background-color: var(--main);
-        border-color: var(--main);
-        transform: translateY(-2px);
-    }
-
-    .btn-success-custom {
-        background-color: var(--success);
-        border-color: var(--success);
-        padding: 0.8rem 1.5rem;
-        font-weight: 600;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-
-    .btn-success-custom:hover {
-        background-color: var(--success);
-        border-color: var(--success);
-        transform: translateY(-2px);
-    }
-
-    .badge-pill {
-        border-radius: 50px;
-        padding: 0.5rem 1rem;
-        font-weight: 500;
-    }
-
-    .detail-section {
-        margin-bottom: 2.5rem;
+        font-size: 0.95rem;
     }
 
     .section-title {
-        font-weight: 600;
+        font-weight: 700;
+        font-size: 1.4rem;
         color: var(--dark);
         margin-bottom: 1.2rem;
         position: relative;
-        padding-bottom: 0.5rem;
+        text-transform: uppercase;
     }
 
     .section-title::after {
         content: '';
         position: absolute;
-        bottom: 0;
+        bottom: -6px;
         left: 0;
-        width: 50px;
-        height: 3px;
+        width: 60px;
+        height: 4px;
         background-color: var(--main);
+        border-radius: 2px;
     }
 
     .feature-list {
@@ -168,16 +120,65 @@
     }
 
     .feature-list li {
-        padding: 0.5rem 0;
+        padding: 0.6rem 0;
+        font-size: 1rem;
         display: flex;
         align-items: center;
+        justify-content: space-between;
     }
 
     .feature-list li::before {
-        content: '✓';
+        content: '•';
+        font-size: 1.2rem;
         color: var(--main);
-        font-weight: bold;
-        margin-right: 0.7rem;
+        margin-right: 0.5rem;
+    }
+
+    .action-card {
+        background: white;
+        border-radius: 14px;
+        box-shadow: var(--card-shadow);
+        padding: 2rem;
+        transition: transform 0.3s ease;
+    }
+
+    .action-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, var(--main), #0056b3);
+        border: none;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 1rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary-custom:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 18px rgba(13, 110, 253, 0.25);
+    }
+
+    .btn-success-custom {
+        background: linear-gradient(135deg, var(--success), #157347);
+        border: none;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 1rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-success-custom:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 18px rgba(25, 135, 84, 0.25);
+    }
+
+    .badge-pill {
+        border-radius: 50px;
+        padding: 0.5rem 1.2rem;
+        font-weight: 600;
+        font-size: 0.9rem;
     }
 
     @media (max-width: 768px) {
@@ -186,7 +187,7 @@
         }
 
         .car-price {
-            font-size: 1.7rem;
+            font-size: 2rem;
         }
 
         .specs-grid {
