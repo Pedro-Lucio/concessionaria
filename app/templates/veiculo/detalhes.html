@@ -6,7 +6,8 @@
 {% block extra_css %}
 <style>
     :root {
-        --main: #0d6efd; /* azul metálico */
+        --main: #0d6efd;
+        /* azul metálico */
         --secondary: #6c757d;
         --light: #f8f9fa;
         --dark: #1c1f23;
@@ -52,7 +53,7 @@
         font-weight: 700;
         color: var(--main);
         margin-bottom: 1.2rem;
-        text-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
     }
 
     .specs-grid {
@@ -122,9 +123,6 @@
     .feature-list li {
         padding: 0.6rem 0;
         font-size: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
     }
 
     .feature-list li::before {
@@ -330,14 +328,6 @@
 
 {% block extra_js %}
 <script>
-    // Ativar miniaturas do carrossel
-    document.querySelectorAll('.car-thumbnail').forEach(thumb => {
-        thumb.addEventListener('click', function () {
-            document.querySelectorAll('.car-thumbnail').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
-
     // Formatar preço
     const priceElement = document.querySelector('.car-price');
     if (priceElement) {
