@@ -302,17 +302,16 @@
 
                     <div class="text-center">
                         <p class="mb-2">Precisa de ajuda?</p>
-                        {% if carro.valor <= 50000 %} <a
+                        {% if carro.valor <= 100000 %} <a
                             href="https://wa.me/+5535997465091?text=Olá!%20Tenho%20interesse%20no%20carro%20{{ carro.marca }}%20{{ carro.modelo }}%20({{ carro.ano }}).%20Poderia%20me%20enviar%20mais%20informações%20por%20favor?"
-                            class="btn btn-outline-primary">
-                            <i class="bi bi-whatsapp me-2"></i>Falar com consultor
+                            class="btn btn-outline-primary"><i class="bi bi-whatsapp me-2"></i>Falar com consultor
                             </a>
-                            {% elif carro.valor <= 150000 %} <a
+                            {% elif carro.valor <= 500000 %} <a
                                 href="https://wa.me/+5535997216613?text=Olá!%20Tenho%20interesse%20no%20carro%20{{ carro.marca }}%20{{ carro.modelo }}%20({{ carro.ano }}).%20Poderia%20me%20enviar%20mais%20informações%20por%20favor?"
                                 class="btn btn-outline-primary">
                                 <i class="bi bi-whatsapp me-2"></i>Falar com consultor
                                 </a>
-                                {% elif carro.valor > 500000 %}
+                                {% else %}
                                 <a href="https://wa.me/+5535997303649?text=Olá!%20Tenho%20interesse%20no%20carro%20{{ carro.marca }}%20{{ carro.modelo }}%20({{ carro.ano }}).%20Poderia%20me%20enviar%20mais%20informações%20por%20favor?"
                                     class="btn btn-outline-primary">
                                     <i class="bi bi-whatsapp me-2"></i>Falar com consultor

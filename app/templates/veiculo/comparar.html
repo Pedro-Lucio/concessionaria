@@ -219,24 +219,28 @@
     }
   }
 
-  .car-gallery {
-    width: 100%;
-    max-width: 500px;
-    /* ajuste se quiser menor */
-    margin: 0 auto;
+  /* define altura fixa do carrossel */
+  .car-gallery .carousel-inner {
+    height: 320px;
+    /* ajuste conforme desejar */
   }
 
+  /* garante que cada slide ocupe toda a altura */
   .car-gallery .carousel-item {
-    height: 300px;
-    /* altura fixa do carrossel */
+    height: 100%;
   }
 
-  .car-gallery .car-img {
+  /* container que usa background-image */
+  .car-gallery .carousel-bg {
     height: 100%;
     width: 100%;
-    object-fit: cover;
+    background-size: cover;
     /* preenche mantendo proporção */
+    background-position: center;
+    /* centraliza exatamente como queria */
+    background-repeat: no-repeat;
     border-radius: 10px;
+    display: block;
   }
 </style>
 
@@ -252,9 +256,16 @@
       <div id="carouselCarro{{ carro1.id }}" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
           {% for imagem in carro1.imagens.all %}
-          <div class="carousel-item {% if forloop.first %}active{% endif %}">
+          <!-- <div class="carousel-item {% if forloop.first %}active{% endif %}">
             <img src="{{ imagem.foto_url }}" class="d-block w-100 rounded"
               alt="{{ carro1.marca }} {{ carro1.modelo }} - Imagem {{ forloop.counter }}">
+          </div> -->
+
+          <!-- Alteração feira para centralizar a imagem -->
+          <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <div class="carousel-bg" role="img"
+              aria-label="{{ carro1.marca }} {{ carro1.modelo }} - Imagem {{ forloop.counter }}"
+              style="background-image: url('{{ imagem.foto_url }}');"></div>
           </div>
           {% endfor %}
         </div>
