@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Solicitações de Vendas Pendentes</h2>
+
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Carro</th>
+        <th>Vendedor</th>
+        <th>Cliente</th>
+        <th>Ações</th>
+    </tr>
+    {% for s in solicitacoes %}
+    <tr>
+        <td>{{ s.id }}</td>
+        <td>{{ s.venda.carro }}</td>
+        <td>{{ s.venda.vendedor.nome }}</td>
+        <td>{{ s.venda.cliente.nome }}</td>
+        <td>
+            <a href="{% url 'aprovar_venda' s.id 'aprovar' %}">✅ Aprovar</a> |
+            <a href="{% url 'aprovar_venda' s.id 'recusar' %}">❌ Recusar</a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">Nenhuma solicitação pendente</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

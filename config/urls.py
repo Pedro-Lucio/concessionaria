@@ -81,14 +81,14 @@ urlpatterns = [
 
     # Urls disponiveis somente para gerente
     
-    # Funcionários
+    # Listas
+    path('listas/', views.listas_overview, name='listas'),
+
+    # Criar Funcionários
     path("funcionario/novo/", criar_funcionario, name="criar_funcionario"),
-    path("funcionario/", FuncionarioListView.as_view(), name="lista_funcionarios"),
-    path("funcionario/<int:pk>/", FuncionarioDetailView.as_view(), name="funcionario_detalhado"),
-
-
-
-
+    
+    # Criar Carros
+    path('carro/criar/', views.carro_criar, name='criar_carro'),
 
     # Vendas
     path('salvar/', salvar_venda, name="salvar_venda"),
