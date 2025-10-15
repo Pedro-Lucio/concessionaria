@@ -28,6 +28,7 @@ import locale
 locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
 
 from django.http import JsonResponse
+from django.db.models import Q
 
 
 
@@ -491,7 +492,7 @@ class AssistenteView(View):
         return predefinidas.get(campo, ["Tanto faz"])
 
     def _achar_mais_proximo(self, respostas):
-        carros = Carro.objects.all()
+        carros = Carro.objects.filter(ativo=True)
         melhor_match = None
         melhor_pontuacao = -1
 
@@ -539,7 +540,7 @@ class AssistenteView(View):
             return {
                 "nome": f"{melhor_match.marca} {melhor_match.modelo} {melhor_match.ano}",
                 "valor": f"R$ {melhor_match.valor}",
-                "url": f"/carros/{melhor_match.id}/",
+                "url": f"/detalhes/{melhor_match.id}/",
                 "pontos": melhor_pontuacao
             }
         return None
@@ -847,6 +848,7 @@ def listas_overview(request):
 
 
 # Registrar venda
+from django.contrib import messages
 @login_required
 @user_passes_test(is_funcionario)
 def salvar_venda(request):
@@ -855,6 +857,11 @@ def salvar_venda(request):
     if request.method == "POST":
         carro_id = request.POST.get("carro")
         cliente_id = request.POST.get("cliente")
+
+        # 🚨 Validação antes de tentar acessar o banco
+        if not carro_id or not cliente_id:
+            messages.error(request, "⚠️ Você deve selecionar um carro e um cliente antes de salvar a venda.")
+            return redirect("salvar_venda")  # redireciona de volta ao formulário
 
         carro = get_object_or_404(Carro, pk=carro_id, ativo=True)
         cliente = get_object_or_404(Usuario, pk=cliente_id, ocupacao="cliente")
@@ -877,8 +884,8 @@ def salvar_venda(request):
         if usuario.ocupacao in "gerente, funcionario":
             carro.ativo = False
             carro.save()
-            SolicitacaoVenda.objects.create(venda=venda)
 
+        messages.success(request, "✅ Venda registrada com sucesso!")
         return redirect("index")
 
     carros = Carro.objects.filter(ativo=True)
