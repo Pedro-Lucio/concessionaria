@@ -255,8 +255,6 @@ def financiamento_calculo(request, carro_id):
 
 
 
-
-
 # Agendar test drive
 @login_required
 def agendar_test_drive(request, carro_id):
@@ -894,3 +892,44 @@ def salvar_venda(request):
         "carros": carros,
         "clientes": clientes,
     })
+
+
+
+
+
+@login_required
+@user_passes_test(is_funcionario)
+def editar_carro(request, pk):
+    carro = get_object_or_404(Carro, pk=pk)
+
+    if request.method == 'POST':
+        marca = request.POST.get('marca', '').strip()
+        modelo = request.POST.get('modelo', '').strip()
+        ano_raw = request.POST.get('ano', '').strip()
+        motor = request.POST.get('motor', '').strip()
+        valor_raw = request.POST.get('valor', '').strip()
+
+        # Corrige vírgulas decimais (ex: 8,8 -> 8.8)
+        valor_raw = valor_raw.replace(',', '.')
+        try:
+            valor = float(valor_raw)
+        except ValueError:
+            messages.error(request, "O valor deve ser numérico (use ponto ou vírgula).")
+            return render(request, 'veiculo/editar_carro.html', {'carro': carro})
+
+        try:
+            ano = int(ano_raw)
+        except ValueError:
+            messages.error(request, "O ano deve ser um número inteiro.")
+            return render(request, 'veiculo/editar_carro.html', {'carro': carro})
+
+        # Atualiza tudo
+        carro.marca = marca
+        carro.modelo = modelo
+        carro.ano = ano
+        carro.motor = motor
+        carro.valor = valor
+        carro.save()
+
+        messages.success(request, f"O carro {carro.modelo} foi atualizado com sucesso!")
+        return redirect('detalhes', pk=carro.pk)

@@ -92,4 +92,9 @@ urlpatterns = [
 
     # Vendas
     path('salvar/', salvar_venda, name="salvar_venda"),
+
+
+
+    path('carro/<int:pk>/editar/', editar_carro, name='editar_carro'),
+
 ]
