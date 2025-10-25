@@ -27,6 +27,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="#carros" data-target="carros">Carros Inativos</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#historico" data-target="historico">Histórico de Alterações</a>
+            </li>
         </ul>
     </nav>
 
@@ -120,6 +123,64 @@
             </div>
         </div>
 
+        <!-- Nova Aba: Histórico de Alterações -->
+        <div id="historico" class="tab-pane" style="display:none;">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <strong>Histórico de Alterações</strong>
+                    <span class="text-muted ms-2">({{ historico_alteracoes|length }} registros)</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>Usuário</th>
+                                    <th>Carro</th>
+                                    <th>Campo Alterado</th>
+                                    <th>Valor Antigo</th>
+                                    <th>Valor Novo</th>
+                                    <th>IP</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for alteracao in historico_alteracoes %}
+                                <tr>
+                                    <td>{{ alteracao.data_alteracao|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ alteracao.usuario.username }}</td>
+                                    <td>
+                                        <a href="{% url 'detalhes' alteracao.carro.id %}" class="text-decoration-none">
+                                            {{ alteracao.carro.marca }} {{ alteracao.carro.modelo }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ alteracao.campo_alterado }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-danger">{{ alteracao.valor_antigo|default:"—" }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-success">{{ alteracao.valor_novo|default:"—" }}</span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ alteracao.ip_address|default:"—" }}</small>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-muted text-center py-3">
+                                        Nenhum registro de alteração encontrado.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -129,7 +190,8 @@
         const links = document.querySelectorAll('#listasTabs a.nav-link');
         const panes = {
             funcionarios: document.getElementById('funcionarios'),
-            carros: document.getElementById('carros')
+            carros: document.getElementById('carros'),
+            historico: document.getElementById('historico')
         };
         const btnFuncionario = document.getElementById('btnNovoFuncionario');
         const btnCarro = document.getElementById('btnNovoCarro');

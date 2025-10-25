@@ -42,6 +42,8 @@ class Usuario(models.Model):
     # Campos caso o tipo do usuário for funcionário
     cpf = models.CharField(max_length=14, unique=True, blank=True, null=True, verbose_name="CPF")
     data_admissao = models.DateField(blank=True, null=True)
+    
+    ativo = models.BooleanField(default=True, verbose_name="Funcionario ativo")
 
     def __str__(self):
         return self.nome or self.user.username
@@ -250,3 +252,26 @@ class Venda(models.Model):
     class Meta:
         verbose_name = "Venda"
         verbose_name_plural = "Vendas"
+
+
+
+#Historico ediçao
+class HistoricoAlteracaoCarro(models.Model):
+    carro = models.ForeignKey('Carro', on_delete=models.CASCADE, related_name='historico_alteracoes', verbose_name="Carro")
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Usuário que alterou')
+    
+    # Campos para armazenar os valores antigos e novos
+    campo_alterado = models.CharField(max_length=50, verbose_name='Campo Alterado')
+    valor_antigo = models.TextField(verbose_name='Valor Antigo', blank=True, null=True)
+    valor_novo = models.TextField(verbose_name='Valor Novo', blank=True, null=True)
+    
+    data_alteracao = models.DateTimeField(auto_now_add=True, verbose_name='Data da Alteração')
+    ip_address = models.GenericIPAddressField(blank=True, null=True, verbose_name='IP do Usuário')
+    
+    class Meta:
+        verbose_name = 'Histórico de Alteração de Carro'
+        verbose_name_plural = 'Históricos de Alterações de Carros'
+        ordering = ['-data_alteracao']
+    
+    def __str__(self):
+        return f"{self.usuario.username} alterou {self.campo_alterado} em {self.carro.modelo}"

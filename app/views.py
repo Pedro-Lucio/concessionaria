@@ -30,6 +30,8 @@ locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
 from django.http import JsonResponse
 from django.db.models import Q
 
+from .models import Carro, HistoricoAlteracaoCarro
+
 
 
 
@@ -832,10 +834,35 @@ def listas_overview(request):
     # GET -> mostra listas
     funcionarios = Usuario.objects.filter(ocupacao='funcionario').order_by('-data_admissao', 'nome')
     carros_inativos = Carro.objects.filter(ativo=False).order_by('-ano', 'marca', 'modelo')
+    
+    # Novo: Histórico de alterações com filtros
+    historico_alteracoes = HistoricoAlteracaoCarro.objects.all().select_related('carro', 'usuario')
+    
+    # Aplicar filtros se existirem
+    carro_id = request.GET.get('carro_id')
+    usuario_id = request.GET.get('usuario_id')
+    campo = request.GET.get('campo')
+    
+    if carro_id:
+        historico_alteracoes = historico_alteracoes.filter(carro_id=carro_id)
+    if usuario_id:
+        historico_alteracoes = historico_alteracoes.filter(usuario_id=usuario_id)
+    if campo:
+        historico_alteracoes = historico_alteracoes.filter(campo_alterado=campo)
+    
+    # Ordenar por data mais recente primeiro
+    historico_alteracoes = historico_alteracoes.order_by('-data_alteracao')
+    
+    # Dados para os filtros
+    todos_carros = Carro.objects.all()
+    todos_usuarios = User.objects.filter(historicoalteracaocarro__isnull=False).distinct()
 
     context = {
         'funcionarios': funcionarios,
         'carros_inativos': carros_inativos,
+        'historico_alteracoes': historico_alteracoes,
+        'todos_carros': todos_carros,
+        'todos_usuarios': todos_usuarios,
     }
     return render(request, 'paginasGerente/listas.html', context)
 
@@ -901,35 +928,136 @@ def salvar_venda(request):
 @user_passes_test(is_funcionario)
 def editar_carro(request, pk):
     carro = get_object_or_404(Carro, pk=pk)
-
+    
     if request.method == 'POST':
+        # Coleta todos os dados do formulário
         marca = request.POST.get('marca', '').strip()
         modelo = request.POST.get('modelo', '').strip()
         ano_raw = request.POST.get('ano', '').strip()
         motor = request.POST.get('motor', '').strip()
         valor_raw = request.POST.get('valor', '').strip()
-
-        # Corrige vírgulas decimais (ex: 8,8 -> 8.8)
+        km_raw = request.POST.get('km', '').strip()
+        cambio = request.POST.get('cambio', '').strip()
+        combustivel = request.POST.get('combustivel', '').strip()
+        cor = request.POST.get('cor', '').strip()
+        consumo_cidade_raw = request.POST.get('consumo_cidade', '').strip()
+        consumo_estrada_raw = request.POST.get('consumo_estrada', '').strip()
+        ipva_pago = request.POST.get('ipva_pago', 'False')
+        
+        # Lista para armazenar possíveis erros
+        errors = []
+        
+        # Validação do valor
         valor_raw = valor_raw.replace(',', '.')
         try:
-            valor = float(valor_raw)
+            valor = float(valor_raw) if valor_raw else 0.0
         except ValueError:
-            messages.error(request, "O valor deve ser numérico (use ponto ou vírgula).")
-            return render(request, 'veiculo/editar_carro.html', {'carro': carro})
-
+            errors.append("O valor deve ser numérico (use ponto ou vírgula).")
+        
+        # Validação do ano
         try:
-            ano = int(ano_raw)
+            ano = int(ano_raw) if ano_raw else 0
         except ValueError:
-            messages.error(request, "O ano deve ser um número inteiro.")
+            errors.append("O ano deve ser um número inteiro.")
+        
+        # Validação da quilometragem
+        try:
+            km = int(km_raw) if km_raw else 0
+        except ValueError:
+            errors.append("A quilometragem deve ser um número inteiro.")
+        
+        # Validação do consumo cidade
+        consumo_cidade_raw = consumo_cidade_raw.replace(',', '.')
+        try:
+            consumo_cidade = float(consumo_cidade_raw) if consumo_cidade_raw else 0.0
+        except ValueError:
+            errors.append("O consumo na cidade deve ser numérico.")
+        
+        # Validação do consumo estrada
+        consumo_estrada_raw = consumo_estrada_raw.replace(',', '.')
+        try:
+            consumo_estrada = float(consumo_estrada_raw) if consumo_estrada_raw else 0.0
+        except ValueError:
+            errors.append("O consumo na estrada deve ser numérico.")
+        
+        # Validação do IPVA pago
+        ipva_pago_bool = ipva_pago.lower() == 'true'
+        
+        # Se houver erros, retorna com mensagens de erro
+        if errors:
+            for error in errors:
+                messages.error(request, error)
             return render(request, 'veiculo/editar_carro.html', {'carro': carro})
-
-        # Atualiza tudo
+        
+        # Lista para armazenar alterações
+        alteracoes = []
+        
+        # Verifica e registra alterações para cada campo
+        campos_para_verificar = [
+            ('marca', marca, carro.marca),
+            ('modelo', modelo, carro.modelo),
+            ('ano', ano, carro.ano),
+            ('motor', motor, carro.motor),
+            ('valor', valor, float(carro.valor)),
+            ('km', km, carro.km),
+            ('cambio', cambio, carro.cambio),
+            ('combustivel', combustivel, carro.combustivel),
+            ('cor', cor, carro.cor),
+            ('consumo_cidade', consumo_cidade, float(carro.consumo_cidade)),
+            ('consumo_estrada', consumo_estrada, float(carro.consumo_estrada)),
+            ('ipva_pago', ipva_pago_bool, carro.ipva_pago),
+        ]
+        
+        for campo_nome, novo_valor, valor_atual in campos_para_verificar:
+            if novo_valor != valor_atual:
+                alteracoes.append({
+                    'campo': campo_nome,
+                    'antigo': str(valor_atual),
+                    'novo': str(novo_valor)
+                })
+        
+        # Atualiza todos os campos do carro
         carro.marca = marca
         carro.modelo = modelo
         carro.ano = ano
         carro.motor = motor
         carro.valor = valor
+        carro.km = km
+        carro.cambio = cambio
+        carro.combustivel = combustivel
+        carro.cor = cor
+        carro.consumo_cidade = consumo_cidade
+        carro.consumo_estrada = consumo_estrada
+        carro.ipva_pago = ipva_pago_bool
+        
         carro.save()
-
+        
+        # Salva o histórico de alterações
+        if alteracoes and request.user.is_authenticated:
+            for alteracao in alteracoes:
+                HistoricoAlteracaoCarro.objects.create(
+                    carro=carro,
+                    usuario=request.user,
+                    campo_alterado=alteracao['campo'],
+                    valor_antigo=alteracao['antigo'],
+                    valor_novo=alteracao['novo'],
+                    ip_address=get_client_ip(request)
+                )
+        
         messages.success(request, f"O carro {carro.modelo} foi atualizado com sucesso!")
+        if alteracoes:
+            messages.info(request, f"Foram realizadas {len(alteracoes)} alteração(s) no carro.")
+        
         return redirect('detalhes', pk=carro.pk)
+    
+    # Se não for POST, renderiza o formulário
+    return render(request, 'veiculo/editar_carro.html', {'carro': carro})
+
+def get_client_ip(request):
+    """Função auxiliar para obter o IP do cliente"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
