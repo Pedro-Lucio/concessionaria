@@ -25,6 +25,9 @@
                 <a class="nav-link active" href="#funcionarios" data-target="funcionarios">Funcionários</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="#clientes" data-target="clientes">Clientes</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="#carros" data-target="carros">Carros Inativos</a>
             </li>
             <li class="nav-item">
@@ -61,6 +64,17 @@
                                     <td>{{ f.telefone|default:"—" }}</td>
                                     <td>{% if f.data_admissao %}{{ f.data_admissao|date:"d/m/Y" }}{% else %}—{% endif %}
                                     </td>
+                                    <td>
+                                        {% if f.pk %}
+                                        <a href="{% url 'editar_funcionario' f.pk %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </a>
+                                        {% else %}
+                                        <button class="btn btn-secondary btn-sm" disabled title="ID inválido">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </button>
+                                        {% endif %}
+                                    </td>
                                 </tr>
                                 {% empty %}
                                 <tr>
@@ -73,6 +87,67 @@
                 </div>
             </div>
         </div>
+
+
+        <!-- Clientes -->
+        <div id="clientes" class="tab-pane">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Clientes</strong>
+                            <span class="text-muted ms-2">({{ clientes|length }})</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Usuário</th>
+                                        <th>Telefone</th>
+                                        <th>E-mail</th>
+                                        <th>Kgs Doados</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for c in clientes %}
+                                    <tr>
+                                        <td>{{ c.nome }}</td>
+                                        <td>{{ c.user.username }}</td>
+                                        <td>{{ c.telefone|default:"—" }}</td>
+                                        <td>{{ c.email|default:"—" }}</td>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                {{ c.kgs_borracha_doados }} kg
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'editar_cliente' c.pk %}" class="btn btn-info" title="Editar Kgs Doados">
+                                                    <i class="fas fa-weight"></i>
+                                                </a>
+                                                <a href="#" class="btn btn-outline-info" title="Detalhes">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-muted text-center py-3">
+                                            <i class="fas fa-users fa-2x mb-2 d-block"></i>
+                                            Nenhum cliente cadastrado.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         <!-- Carros Inativos -->
         <div id="carros" class="tab-pane" style="display:none;">

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-edit me-2"></i>
+                            Editar Kgs Doados - Cliente
+                        </h5>
+                        <a href="javascript:history.back()" class="btn btn-light btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i> Voltar
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Mensagens -->
+                    {% if messages %}
+                    <div class="mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Informações do Cliente -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title">Informações do Cliente</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Nome:</strong> {{ cliente.nome }}<br>
+                                    <strong>Usuário:</strong> {{ cliente.user.username }}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Telefone:</strong> {{ cliente.telefone|default:"—" }}<br>
+                                    <strong>E-mail:</strong> {{ cliente.email|default:"—" }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">Kgs de Borracha Doados</h6>
+                            
+                            <div class="mb-3">
+                                <label for="kgs_borracha_doados" class="form-label">
+                                    Quantidade de Borracha Doada (kg) *
+                                </label>
+                                <input type="text" class="form-control" id="kgs_borracha_doados" 
+                                       name="kgs_borracha_doados" value="{{ cliente.kgs_borracha_doados }}" 
+                                       required placeholder="0.00">
+                                <div class="form-text">
+                                    Informe a quantidade total de borracha doada pelo cliente em quilogramas.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="javascript:history.back()" class="btn btn-secondary">
+                                        <i class="fas fa-times me-1"></i> Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-info">
+                                        <i class="fas fa-save me-1"></i> Atualizar Kgs Doados
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Validação para permitir apenas números e ponto/vírgula
+document.getElementById('kgs_borracha_doados').addEventListener('input', function(e) {
+    let value = e.target.value;
+    // Substitui vírgula por ponto
+    value = value.replace(',', '.');
+    // Remove caracteres não numéricos exceto ponto
+    value = value.replace(/[^\d.]/g, '');
+    // Remove pontos extras, mantendo apenas o primeiro
+    const parts = value.split('.');
+    if (parts.length > 2) {
+        value = parts[0] + '.' + parts.slice(1).join('');
+    }
+    e.target.value = value;
+});
+</script>
+{% endblock %}

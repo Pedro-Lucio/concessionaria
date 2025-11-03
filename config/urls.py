@@ -97,4 +97,8 @@ urlpatterns = [
 
     path('carro/<int:pk>/editar/', editar_carro, name='editar_carro'),
 
+
+
+    path('funcionarios/editar/<int:pk>/', editar_funcionario, name='editar_funcionario'),
+    path('clientes/editar/<int:pk>/', views.editar_cliente, name='editar_cliente'),
 ]

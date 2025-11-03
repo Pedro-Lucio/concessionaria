@@ -751,90 +751,6 @@ def carro_criar(request):
 
 
 
-
-
-# Editar o veículo
-
-@login_required
-@user_passes_test(is_gerente)
-def editar_carro(request, pk):
-    carro = get_object_or_404(Carro, pk=pk)
-
-    if request.method == 'POST':
-        # ler campos (mesma lógica de validação que criar)
-        marca = request.POST.get('marca', '').strip()
-        modelo = request.POST.get('modelo', '').strip()
-        ano_raw = request.POST.get('ano', '').strip()
-        motor = request.POST.get('motor', '').strip()
-        km_raw = request.POST.get('km', '0').strip()
-        valor_raw = request.POST.get('valor', '').strip()
-        tipo = request.POST.get('tipo', '').strip()
-        cambio = request.POST.get('cambio', '').strip()
-        combustivel = request.POST.get('combustivel', '').strip()
-        cor = request.POST.get('cor', '').strip()
-        consumo_cidade_raw = request.POST.get('consumo_cidade', '').strip() or '0'
-        consumo_estrada_raw = request.POST.get('consumo_estrada', '').strip() or '0'
-        ipva_pago = 'ipva_pago' in request.POST
-        ativo = 'ativo' in request.POST
-
-        if not (marca and modelo and ano_raw and motor and valor_raw and tipo and cambio and combustivel and cor):
-            messages.error(request, "Preencha todos os campos obrigatórios.")
-            return redirect('editar_carro', pk=pk)
-
-        try:
-            ano = int(ano_raw)
-            km = int(km_raw) if km_raw != '' else 0
-            valor = Decimal(valor_raw)
-            consumo_cidade = Decimal(consumo_cidade_raw)
-            consumo_estrada = Decimal(consumo_estrada_raw)
-        except (ValueError, InvalidOperation):
-            messages.error(request, "Alguns campos numéricos estão inválidos.")
-            return redirect('editar_carro', pk=pk)
-
-        image_urls = request.POST.getlist('image_urls')
-
-        try:
-            with transaction.atomic():
-                carro.marca = marca
-                carro.modelo = modelo
-                carro.ano = ano
-                carro.motor = motor
-                carro.valor = valor
-                carro.km = km
-                carro.tipo = tipo
-                carro.cambio = cambio
-                carro.combustivel = combustivel
-                carro.cor = cor
-                carro.consumo_cidade = consumo_cidade
-                carro.consumo_estrada = consumo_estrada
-                carro.ipva_pago = ipva_pago
-                carro.ativo = ativo
-                carro.save()
-
-                # sincroniza imagens: estratégia simples -> apagar todas e recriar
-                carro.imagens.all().delete()
-                for u in image_urls:
-                    u = (u or '').strip()
-                    if u:
-                        ImagemCarro.objects.create(carro=carro, foto_url=u)
-
-            messages.success(request, "Carro atualizado com sucesso.")
-            return redirect('listas')
-        except Exception as e:
-            messages.error(request, f"Erro ao atualizar carro: {str(e)}")
-            return redirect('editar_carro', pk=pk)
-
-    # GET -> preparar dados para o template (JSON para o script de imagens)
-    existing_images = list(carro.imagens.values_list('foto_url', flat=True))
-    existing_images_json = json.dumps(existing_images)
-    return render(request, 'carro/editar_carro.html', {
-        'carro': carro,
-        'existing_images_json': existing_images_json,
-    })
-
-
-
-
 # Listas
 @login_required
 @user_passes_test(is_gerente)
@@ -1080,3 +996,190 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+
+
+
+
+# EDITAR FUNCIONARIO
+def editar_funcionario(request, pk):
+    # Verifica se o usuário está autenticado
+    if not request.user.is_authenticated:
+        messages.error(request, "Você precisa estar logado para acessar esta página.")
+        return redirect('login')
+    
+    # Obtém o usuário a ser editado
+    usuario = get_object_or_404(Usuario, pk=pk)
+    
+    # Verifica se o usuário é um funcionário (funcionario ou gerente)
+    if usuario.ocupacao not in ['funcionario', 'gerente']:
+        messages.error(request, "Apenas funcionários podem ser editados nesta página.")
+        return redirect('lista_funcionarios')  # Redireciona para lista de funcionários
+    
+    if request.method == 'POST':
+        # Coleta todos os dados do formulário
+        nome = request.POST.get('nome', '').strip()
+        email = request.POST.get('email', '').strip()
+        telefone = request.POST.get('telefone', '').strip()
+        ocupacao = request.POST.get('ocupacao', '').strip()
+        kgs_borracha_doados_raw = request.POST.get('kgs_borracha_doados', '').strip()
+        cpf = request.POST.get('cpf', '').strip()
+        data_admissao_raw = request.POST.get('data_admissao', '').strip()
+        ativo = request.POST.get('ativo', 'False')
+        username = request.POST.get('username', '').strip()
+        
+        # Lista para armazenar possíveis erros
+        errors = []
+        
+        # Validação do kgs_borracha_doados
+        kgs_borracha_doados_raw = kgs_borracha_doados_raw.replace(',', '.')
+        try:
+            kgs_borracha_doados = float(kgs_borracha_doados_raw) if kgs_borracha_doados_raw else 0.0
+        except ValueError:
+            errors.append("Os kgs de borracha doados devem ser numéricos (use ponto ou vírgula).")
+        
+        # Validação da data de admissão
+        data_admissao = None
+        if data_admissao_raw:
+            try:
+                data_admissao = datetime.strptime(data_admissao_raw, '%Y-%m-%d').date()
+            except ValueError:
+                errors.append("A data de admissão deve estar no formato YYYY-MM-DD.")
+        
+        # Validação do CPF (opcional, apenas se for preenchido)
+        if cpf:
+            # Verifica se CPF já existe em outro usuário
+            cpf_existente = Usuario.objects.filter(cpf=cpf).exclude(pk=usuario.pk).exists()
+            if cpf_existente:
+                errors.append("Este CPF já está em uso por outro usuário.")
+        
+        # Validação do email
+        if email and '@' not in email:
+            errors.append("E-mail inválido.")
+        
+        # Validação do username (deve ser único)
+        if username:
+            user_exists = User.objects.filter(username=username).exclude(pk=usuario.user.pk).exists()
+            if user_exists:
+                errors.append("Este nome de usuário já está em uso.")
+        
+        # Validação do ativo
+        ativo_bool = ativo.lower() == 'true'
+        
+        # Se houver erros, retorna com mensagens de erro
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return render(request, 'paginasGerente/editar_funcionario.html', {'usuario': usuario})
+        
+        # Lista para armazenar alterações
+        alteracoes = []
+        
+        # Verifica e registra alterações para cada campo do Usuario
+        campos_para_verificar = [
+            ('nome', nome, usuario.nome),
+            ('email', email, usuario.email or ''),
+            ('telefone', telefone, usuario.telefone),
+            ('ocupacao', ocupacao, usuario.ocupacao),
+            ('kgs_borracha_doados', kgs_borracha_doados, float(usuario.kgs_borracha_doados)),
+            ('cpf', cpf, usuario.cpf or ''),
+            ('data_admissao', data_admissao, usuario.data_admissao),
+            ('ativo', ativo_bool, usuario.ativo),
+        ]
+        
+        for campo_nome, novo_valor, valor_atual in campos_para_verificar:
+            if novo_valor != valor_atual:
+                alteracoes.append({
+                    'campo': campo_nome,
+                    'antigo': str(valor_atual) if valor_atual is not None else '',
+                    'novo': str(novo_valor) if novo_valor is not None else ''
+                })
+        
+        # Verifica alterações no username do User relacionado
+        if username and username != usuario.user.username:
+            alteracoes.append({
+                'campo': 'username',
+                'antigo': usuario.user.username,
+                'novo': username
+            })
+        
+        # Atualiza os campos do Usuario
+        usuario.nome = nome
+        usuario.email = email if email else None
+        usuario.telefone = telefone
+        usuario.ocupacao = ocupacao
+        usuario.kgs_borracha_doados = kgs_borracha_doados
+        usuario.cpf = cpf if cpf else None
+        usuario.data_admissao = data_admissao
+        usuario.ativo = ativo_bool
+        
+        # Atualiza o username do User relacionado
+        if username:
+            usuario.user.username = username
+            usuario.user.save()
+        
+        usuario.save()
+        
+        messages.success(request, f"O funcionário {usuario.nome} foi atualizado com sucesso!")
+        if alteracoes:
+            messages.info(request, f"Foram realizadas {len(alteracoes)} alteração(s) no funcionário.")
+        
+        return redirect('listas')
+    
+    # Se não for POST, renderiza o formulário
+    return render(request, 'paginasGerente/editar_funcionario.html', {'usuario': usuario})
+
+
+
+
+# EDITAR CLIENTE
+def editar_cliente(request, pk):
+    # Obtém o cliente a ser editado
+    cliente = get_object_or_404(Usuario, pk=pk)
+    
+    # Verifica se o usuário é um cliente
+    if cliente.ocupacao != 'cliente':
+        messages.error(request, "Apenas clientes podem ser editados nesta página.")
+        return redirect('lista_clientes')  # Ou para onde você redireciona
+    
+    if request.method == 'POST':
+        # Coleta apenas os kgs de borracha doados
+        kgs_borracha_doados_raw = request.POST.get('kgs_borracha_doados', '').strip()
+        
+        # Lista para armazenar possíveis erros
+        errors = []
+        
+        # Validação do kgs_borracha_doados
+        kgs_borracha_doados_raw = kgs_borracha_doados_raw.replace(',', '.')
+        try:
+            kgs_borracha_doados = float(kgs_borracha_doados_raw) if kgs_borracha_doados_raw else 0.0
+        except ValueError:
+            errors.append("Os kgs de borracha doados devem ser numéricos (use ponto ou vírgula).")
+        
+        # Se houver erros, retorna com mensagens de erro
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return render(request, 'paginasGerente/editar_cliente.html', {'cliente': cliente})
+        
+        # Verifica se houve alteração
+        alteracoes = []
+        if kgs_borracha_doados != float(cliente.kgs_borracha_doados):
+            alteracoes.append({
+                'campo': 'kgs_borracha_doados',
+                'antigo': str(cliente.kgs_borracha_doados),
+                'novo': str(kgs_borracha_doados)
+            })
+        
+        # Atualiza apenas os kgs de borracha doados
+        cliente.kgs_borracha_doados = kgs_borracha_doados
+        cliente.save()
+        
+        messages.success(request, f"Os kgs de borracha doados do cliente {cliente.nome} foram atualizados com sucesso!")
+        if alteracoes:
+            messages.info(request, f"Valor alterado de {alteracoes[0]['antigo']}kg para {alteracoes[0]['novo']}kg.")
+        
+        return redirect('listas_overview')  # Ou para onde você redireciona
+    
+    # Se não for POST, renderiza o formulário
+    return render(request, 'paginasGerente/editar_cliente.html', {'cliente': cliente})
