@@ -23,6 +23,10 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     #
+
+    # Para formatação do preço do veículo
+    'django.contrib.humanize',
+    # 
 ]
 # Crispy template pack boostrap
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

@@ -1,0 +1,216 @@
+<style>
+    /* Botão do balão */
+    #chat-balao {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #0d6efd;
+        color: white;
+        font-size: 24px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s, background 0.3s;
+        z-index: 10000;
+    }
+
+    #chat-balao:hover {
+        background: #0b5ed7;
+        transform: scale(1.1);
+    }
+
+    /* Caixa de chat */
+    .chat-box {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        width: 350px;
+        max-height: 500px;
+        background: #fefefe;
+        border-radius: 15px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        display: none;
+        /* escondido até clicar */
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 10001;
+    }
+
+    /* Cabeçalho */
+    .chat-header {
+        background: linear-gradient(90deg, #005ecb, #81C784);
+        color: white;
+        padding: 12px;
+        text-align: center;
+        font-size: 14px;
+        position: relative;
+    }
+
+    .chat-header h1 {
+        font-size: 16px;
+        margin: 0;
+    }
+
+    .chat-header p {
+        font-size: 12px;
+        margin: 2px 0 0 0;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    /* Corpo */
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 400px;
+        padding: 10px;
+    }
+
+    .mensagens {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        overflow-y: auto;
+    }
+
+    .bot {
+        background: #eaf1ff;
+        padding: 10px 14px;
+        border-radius: 15px;
+        align-self: flex-start;
+        max-width: 80%;
+    }
+
+    .user {
+        background: #0078ff;
+        color: white;
+        padding: 10px 14px;
+        border-radius: 15px;
+        align-self: flex-end;
+        max-width: 80%;
+    }
+
+    .opcoes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 10px;
+    }
+
+    .opcoes button {
+        flex: 1;
+        min-width: 100px;
+        padding: 8px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background: #0078ff;
+        color: white;
+        font-size: 13px;
+        transition: 0.2s;
+    }
+
+    .opcoes button:hover {
+        background: #005ecb;
+    }
+</style>
+
+<!-- Balão flutuante -->
+<div id="chat-balao" onclick="toggleChat()">
+    💬
+</div>
+
+<!-- Janela de Chat (inicialmente escondida) -->
+<div id="chat-box" class="chat-box">
+    <div class="chat-header">
+        <h1>🚗 Descubra o carro que combina com você!</h1>
+        <p>Responda algumas perguntas e eu vou te mostrar o carro ideal!</p>
+        <span class="close-btn" onclick="toggleChat()">×</span>
+    </div>
+    <div class="chat-container">
+        <div class="mensagens" id="mensagens"></div>
+        <div class="opcoes" id="opcoes"></div>
+    </div>
+</div>
+
+<script>
+    let pergunta_atual_id = null;
+
+    function toggleChat() {
+        const chat = document.getElementById("chat-box");
+        chat.style.display = (chat.style.display === "flex") ? "none" : "flex";
+
+        if (chat.style.display === "flex" && !pergunta_atual_id) {
+            carregarPergunta();
+        }
+    }
+
+    function carregarPergunta() {
+        fetch("{% url 'assistente' %}")
+            .then(res => res.json())
+            .then(data => {
+                mostrarPergunta(data);
+            });
+    }
+
+    function mostrarPergunta(data) {
+        pergunta_atual_id = data.id;
+        const mensagens = document.getElementById("mensagens");
+        mensagens.innerHTML += `<div class="bot">${data.pergunta}</div>`;
+
+        const opcoesDiv = document.getElementById("opcoes");
+        opcoesDiv.innerHTML = "";
+        data.opcoes.forEach(op => {
+            const btn = document.createElement("button");
+            btn.innerText = op;
+            btn.onclick = () => enviarResposta(op);
+            opcoesDiv.appendChild(btn);
+        });
+
+        mensagens.scrollTop = mensagens.scrollHeight;
+    }
+
+    function enviarResposta(resposta) {
+        const mensagens = document.getElementById("mensagens");
+        mensagens.innerHTML += `<div class="user">${resposta}</div>`;
+
+        fetch("{% url 'assistente' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: `id=${pergunta_atual_id}&resposta=${resposta}`
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.final) {
+                    const opcoesDiv = document.getElementById("opcoes");
+                    opcoesDiv.innerHTML = "";
+                    if (data.carro) {
+                        mensagens.innerHTML += `<div class="bot">Dentro do que você me contou, esse aqui é o que mais combina com o seu perfil:</div>`;
+                        mensagens.innerHTML += `<div class="carro">
+                        <a href="${data.carro.url}"><b>${data.carro.nome}</b></a><br>${data.carro.valor}
+                    </div>`;
+                    } else {
+                        mensagens.innerHTML += `<div class="bot">Não achei um carro perfeito, mas podemos ajustar juntos! Veja o estoque completo.</div>`;
+                    }
+                } else {
+                    mostrarPergunta(data);
+                }
+                mensagens.scrollTop = mensagens.scrollHeight;
+            });
+    }
+</script>

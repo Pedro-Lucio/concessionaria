@@ -1,0 +1,466 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Simulação de Financiamento | {{ carro.marca }} {{ carro.modelo }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Variáveis de cores e estilos */
+  :root {
+    --primary: #0d6efd;
+    --primary-dark: #0a58ca;
+    --primary-light: #e8f2ff;
+    --secondary: #6c757d;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --success: #198754;
+    --success-light: #e9f7ef;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --border: #dee2e6;
+    --radius: 12px;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --transition: all 0.3s ease;
+  }
+
+  /* Estilos gerais */
+  .fin-card {
+    max-width: 900px;
+    margin: 2.5rem auto;
+    padding: 2rem;
+    border-radius: var(--radius);
+    background: #fff;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+
+  .fin-card h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .fin-card p strong {
+    color: var(--dark);
+  }
+
+  /* Formulário */
+  #simulador-form {
+    margin: 1.5rem 0;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .form-select,
+  .form-control {
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: var(--transition);
+    font-weight: 500;
+    width: 100%;
+  }
+
+  .form-select:focus,
+  .form-control:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+  }
+
+  /* Botões rápidos de entrada */
+  .quick-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.75rem;
+  }
+
+  .quick-entry {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--light);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    color: var(--dark);
+  }
+
+  .quick-entry:hover {
+    background-color: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .quick-entry.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  /* Botão principal */
+  .btn-primary-custom {
+    display: block;
+    width: 100%;
+    padding: 0.875rem;
+    border-radius: var(--radius);
+    background: var(--success);
+    color: #fff;
+    border: none;
+    font-weight: 700;
+    transition: var(--transition);
+    margin-top: 1.5rem;
+    font-size: 1rem;
+  }
+
+  .btn-primary-custom:hover {
+    background: #157347;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(25, 135, 84, 0.25);
+  }
+
+  /* Resultado da simulação */
+  .highlight-box {
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    background: var(--light);
+    margin-top: 1.5rem;
+    border: 1px solid var(--border);
+  }
+
+  .highlight-box h5 {
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 1rem;
+  }
+
+  .big-parcela {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--primary);
+    text-align: center;
+    margin: 0.5rem 0;
+  }
+
+  .muted {
+    color: var(--secondary);
+    font-size: 0.95rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Detalhes do financiamento */
+  details {
+    margin: 1.5rem 0;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  details summary {
+    cursor: pointer;
+    padding: 1rem;
+    background: var(--primary-light);
+    border-radius: var(--radius);
+    font-weight: 600;
+    color: var(--primary);
+    transition: var(--transition);
+    list-style: none;
+    position: relative;
+  }
+
+  details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  details summary:after {
+    content: '+';
+    position: absolute;
+    right: 1rem;
+    transition: var(--transition);
+  }
+
+  details[open] summary:after {
+    content: '-';
+  }
+
+  details summary:hover {
+    background: #d9e7ff;
+  }
+
+  details div {
+    padding: 1rem;
+    background: white;
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+
+  details p {
+    margin: 0.75rem 0;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f1f1;
+  }
+
+  details p:last-child {
+    border-bottom: none;
+  }
+
+  /* Comparativo de entradas */
+  #compareSection h6 {
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .compare-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .compare-card {
+    padding: 1.25rem;
+    border-radius: var(--radius);
+    background: white;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    transition: var(--transition);
+  }
+
+  .compare-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .compare-card.best {
+    border: 2px solid var(--success);
+    background: var(--success-light);
+    position: relative;
+  }
+
+  .compare-card.best:before {
+    content: 'RECOMENDADO';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--success);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: 20px;
+  }
+
+  .compare-card p {
+    margin: 0.5rem 0;
+  }
+
+  .compare-card p strong {
+    color: var(--dark);
+  }
+
+  /* Mensagem de erro */
+  #msgErro {
+    display: none;
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    background: #fff5f5;
+    color: var(--danger);
+    font-weight: 600;
+    border: 1px solid #f5c2c7;
+  }
+
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .fin-card {
+      margin: 1.5rem;
+      padding: 1.5rem;
+    }
+
+    .big-parcela {
+      font-size: 1.75rem;
+    }
+
+    .compare-cards {
+      grid-template-columns: 1fr;
+    }
+
+    .quick-buttons {
+      flex-direction: column;
+    }
+
+    .quick-entry {
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .fin-card {
+      margin: 1rem;
+      padding: 1.25rem;
+    }
+
+    .big-parcela {
+      font-size: 1.5rem;
+    }
+
+    .highlight-box {
+      padding: 1.25rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fin-card">
+  <h3>{{ carro.marca }} {{ carro.modelo }} {{ carro.ano }}</h3>
+  <p><strong>Preço do veículo:</strong> R$ {{ carro.valor|floatformat:2 }}</p>
+
+  <form id="simulador-form">
+    <div class="mb-3">
+      <label for="parcelas" class="form-label">Escolha em quantas vezes deseja pagar:</label>
+      <select id="parcelas" class="form-select">
+        <option value="12">12x</option>
+        <option value="24" selected>24x</option>
+        <option value="36">36x</option>
+        <option value="48">48x</option>
+        <option value="60">60x</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="entrada" class="form-label">Valor de entrada (quanto vai dar de início):</label>
+      <input id="entrada" type="number" class="form-control" min="0" step="1" value="0" />
+      <div class="quick-buttons" id="quickButtons"></div>
+    </div>
+
+    <button id="btnCalcular" type="submit" class="btn-primary-custom">Calcular Parcela</button>
+    <div id="msgErro" style="display:none;margin-top:0.6rem;color:#b02a37;font-weight:600;"></div>
+  </form>
+
+  <div id="resultado" class="highlight-box" style="display:none;">
+    <h5 class="text-center">Resultado da Simulação</h5>
+    <p class="big-parcela" id="parcela-texto">—</p>
+    <p class="text-center muted">Parcela fixa ao mês (juros inclusos)</p>
+
+    <details>
+      <summary style="cursor:pointer;">Clique para ver detalhes do financiamento</summary>
+      <div style="margin-top:0.6rem;">
+        <p><strong>Valor financiado:</strong> quanto será parcelado → <span id="valor-financiado"></span></p>
+        <p><strong>Total de juros:</strong> custo do financiamento ao longo do período → <span id="total-juros"></span>
+        </p>
+        <p><strong>Total pago:</strong> soma de todas as parcelas (entrada + financiamento) → <span
+            id="total-pago"></span></p>
+        <p><strong>Taxa de juros aplicada:</strong> <span id="taxa-detalhe">1,5% ao mês</span></p>
+      </div>
+    </details>
+
+    <div id="compareSection" style="margin-top:1rem;">
+      <h6 class="text-center">Compare diferentes valores de entrada</h6>
+      <div class="compare-cards" id="compareCards"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const taxa = 0.015; // 1.5% ao mês
+  const valorCarro = Number("{{ carro.valor|floatformat:2 }}".replace(',', '.'));
+
+  function formatBR(value) {
+    return Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  function calcularPrice(valor, taxa, n) {
+    if (taxa === 0) return valor / n;
+    return (valor * taxa) / (1 - Math.pow(1 + taxa, -n));
+  }
+
+  function atualizarSimulacao(entrada, parcelas) {
+    if (entrada >= valorCarro) {
+      document.getElementById('msgErro').style.display = 'block';
+      document.getElementById('msgErro').innerText = "A entrada não pode ser maior ou igual ao valor do carro.";
+      return;
+    }
+    document.getElementById('msgErro').style.display = 'none';
+
+    const valorFinanciado = valorCarro - entrada;
+    const parcela = calcularPrice(valorFinanciado, taxa, parcelas);
+    const totalPago = parcela * parcelas;
+    const totalJuros = totalPago - valorFinanciado;
+
+    document.getElementById('parcela-texto').innerText = formatBR(parcela);
+    document.getElementById('valor-financiado').innerText = formatBR(valorFinanciado);
+    document.getElementById('total-juros').innerText = formatBR(totalJuros);
+    document.getElementById('total-pago').innerText = formatBR(totalPago);
+
+    document.getElementById('resultado').style.display = 'block';
+
+    // Comparativo com diferentes entradas
+    const entradas = [0, 10000, 20000, 30000];
+    const compareDiv = document.getElementById('compareCards');
+    compareDiv.innerHTML = "";
+    entradas.forEach(val => {
+      if (val < valorCarro) {
+        const parcelaAlt = calcularPrice(valorCarro - val, taxa, parcelas);
+        const card = document.createElement('div');
+        card.className = "compare-card";
+        card.innerHTML = `
+          <p><strong>Entrada:</strong> ${formatBR(val)}</p>
+          <p><strong>Parcela:</strong> ${formatBR(parcelaAlt)}</p>
+          <p class="muted">em ${parcelas}x</p>
+        `;
+        compareDiv.appendChild(card);
+      }
+    });
+  }
+
+  document.getElementById('simulador-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const entrada = parseFloat(document.getElementById('entrada').value) || 0;
+    const parcelas = parseInt(document.getElementById('parcelas').value);
+    atualizarSimulacao(entrada, parcelas);
+  });
+
+  // Botões rápidos de entrada
+  const quickDiv = document.getElementById('quickButtons');
+  [0, valorCarro * 0.10, valorCarro * 0.20, valorCarro * 0.30].forEach(val => {
+    if (val < valorCarro) {
+      const btn = document.createElement('div');
+      btn.className = "quick-entry";
+
+      if (val === 0) {
+        btn.innerText = "Sem entrada";
+      } else if (val === valorCarro * 0.10) {
+        btn.innerText = "10% do valor do veículo";
+      } else if (val === valorCarro * 0.20) {
+        btn.innerText = "20% do valor do veículo";
+      } else if (val === valorCarro * 0.30) {
+        btn.innerText = "30% do valor do veículo";
+      } else {
+        btn.innerText = formatBR(val);
+      }
+
+      btn.addEventListener('click', () => {
+        document.getElementById('entrada').value = val;
+      });
+
+      quickDiv.appendChild(btn);
+    }
+
+  });
+</script>
+{% endblock %}
