@@ -100,5 +100,6 @@ urlpatterns = [
 
 
     path('funcionarios/editar/<int:pk>/', editar_funcionario, name='editar_funcionario'),
-    path('clientes/editar/<int:pk>/', views.editar_cliente, name='editar_cliente'),
+    path('clientes/', views.lista_clientes, name='lista_clientes'),
+path('editar_cliente/<int:pk>/', views.editar_cliente, name='editar_cliente'),
 ]

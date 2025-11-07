@@ -768,6 +768,7 @@ def listas_overview(request):
 
     # GET -> mostra listas
     funcionarios = Usuario.objects.filter(ocupacao='funcionario').order_by('-data_admissao', 'nome')
+    clientes = Usuario.objects.filter(ocupacao='cliente')
     carros_inativos = Carro.objects.filter(ativo=False).order_by('-ano', 'marca', 'modelo')
     
     # Novo: Histórico de alterações com filtros
@@ -794,6 +795,7 @@ def listas_overview(request):
 
     context = {
         'funcionarios': funcionarios,
+        'clientes': clientes,
         'carros_inativos': carros_inativos,
         'historico_alteracoes': historico_alteracoes,
         'todos_carros': todos_carros,
@@ -1131,55 +1133,91 @@ def editar_funcionario(request, pk):
 
 
 
-
 # EDITAR CLIENTE
+from .models import Usuario
+
 def editar_cliente(request, pk):
-    # Obtém o cliente a ser editado
-    cliente = get_object_or_404(Usuario, pk=pk)
-    
-    # Verifica se o usuário é um cliente
-    if cliente.ocupacao != 'cliente':
+    # Verifica se o usuário está logado
+    if not request.user.is_authenticated:
+        messages.error(request, "Você precisa estar logado para acessar esta página.")
+        return redirect('login')
+
+    # Busca o cliente
+    usuario = get_object_or_404(Usuario, pk=pk)
+
+    # Garante que seja um cliente
+    if usuario.ocupacao != 'cliente':
         messages.error(request, "Apenas clientes podem ser editados nesta página.")
-        return redirect('lista_clientes')  # Ou para onde você redireciona
-    
+        return redirect('listas')  
+
     if request.method == 'POST':
-        # Coleta apenas os kgs de borracha doados
         kgs_borracha_doados_raw = request.POST.get('kgs_borracha_doados', '').strip()
-        
-        # Lista para armazenar possíveis erros
+        username = request.POST.get('username', '').strip()
+
         errors = []
-        
-        # Validação do kgs_borracha_doados
+
+        # Validação de username único
+        if username:
+            user_exists = User.objects.filter(username=username).exclude(pk=usuario.user.pk).exists()
+            if user_exists:
+                errors.append("Este nome de usuário já está em uso.")
+
+        # Validação numérica do campo de KGs doados
         kgs_borracha_doados_raw = kgs_borracha_doados_raw.replace(',', '.')
         try:
             kgs_borracha_doados = float(kgs_borracha_doados_raw) if kgs_borracha_doados_raw else 0.0
         except ValueError:
-            errors.append("Os kgs de borracha doados devem ser numéricos (use ponto ou vírgula).")
-        
-        # Se houver erros, retorna com mensagens de erro
+            errors.append("Os Kgs de borracha doados devem ser um número válido (use ponto ou vírgula).")
+
         if errors:
-            for error in errors:
-                messages.error(request, error)
-            return render(request, 'paginasGerente/editar_cliente.html', {'cliente': cliente})
-        
-        # Verifica se houve alteração
+            for e in errors:
+                messages.error(request, e)
+            return render(request, 'paginasGerente/editar_cliente.html', {'usuario': usuario})
+
+        # Registra alterações
         alteracoes = []
-        if kgs_borracha_doados != float(cliente.kgs_borracha_doados):
+        campos_para_verificar = [
+            ('kgs_borracha_doados', kgs_borracha_doados, float(usuario.kgs_borracha_doados)),
+        ]
+
+        for campo_nome, novo_valor, valor_atual in campos_para_verificar:
+            if novo_valor != valor_atual:
+                alteracoes.append({
+                    'campo': campo_nome,
+                    'antigo': str(valor_atual),
+                    'novo': str(novo_valor)
+                })
+
+        if username and username != usuario.user.username:
             alteracoes.append({
-                'campo': 'kgs_borracha_doados',
-                'antigo': str(cliente.kgs_borracha_doados),
-                'novo': str(kgs_borracha_doados)
+                'campo': 'username',
+                'antigo': usuario.user.username,
+                'novo': username
             })
-        
-        # Atualiza apenas os kgs de borracha doados
-        cliente.kgs_borracha_doados = kgs_borracha_doados
-        cliente.save()
-        
-        messages.success(request, f"Os kgs de borracha doados do cliente {cliente.nome} foram atualizados com sucesso!")
+
+        # Atualiza os dados
+        usuario.kgs_borracha_doados = kgs_borracha_doados
+
+        if username:
+            usuario.user.username = username
+            usuario.user.save()
+
+        usuario.save()
+
+        messages.success(request, f"O cliente {usuario.nome} foi atualizado com sucesso!")
         if alteracoes:
-            messages.info(request, f"Valor alterado de {alteracoes[0]['antigo']}kg para {alteracoes[0]['novo']}kg.")
-        
-        return redirect('listas_overview')  # Ou para onde você redireciona
-    
-    # Se não for POST, renderiza o formulário
-    return render(request, 'paginasGerente/editar_cliente.html', {'cliente': cliente})
+            messages.info(request, f"Foram realizadas {len(alteracoes)} alteração(ões) no cliente.")
+
+        return redirect('listas')  # ou 'lista_clientes', conforme sua rota
+
+    return render(request, 'paginasGerente/editar_cliente.html', {'usuario': usuario})
+
+
+
+def lista_clientes(request):
+    if not request.user.is_authenticated:
+        messages.error(request, "Você precisa estar logado para acessar esta página.")
+        return redirect('login')
+
+    clientes = Usuario.objects.filter(ocupacao='cliente').order_by('nome')
+    return render(request, 'paginasGerente/lista_clientes.html', {'clientes': clientes})
