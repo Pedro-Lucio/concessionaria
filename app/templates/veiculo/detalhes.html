@@ -1,0 +1,506 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ carro.marca }} {{ carro.modelo }} {{ carro.ano }} | Pezza Veículos{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --main: #0d6efd;
+        --secondary: #6c757d;
+        --light: #f8f9fa;
+        --dark: #1c1f23;
+        --success: #198754;
+        --danger: #dc3545;
+        --accent: #f1f3f5;
+        --card-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+        --warning: #ffc107;
+        --warning-hover: #e0a800;
+    }
+
+    body {
+        font-family: 'Poppins', 'Roboto', sans-serif;
+        background-color: #f5f6f8;
+        color: var(--dark);
+    }
+
+    .car-gallery {
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+    }
+
+    .car-gallery img {
+        height: 80%;
+        object-fit: cover;
+        width: 100%;
+        transition: transform 0.5s ease;
+    }
+
+    .car-gallery img:hover {
+        transform: scale(1.03);
+    }
+
+    .car-title {
+        font-weight: 800;
+        font-size: 2rem;
+        color: var(--dark);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .car-price {
+        font-size: 2.4rem;
+        font-weight: 700;
+        color: var(--main);
+        margin-bottom: 1.2rem;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+    }
+
+    .specs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .spec-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .spec-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.15);
+    }
+
+    .spec-icon {
+        font-size: 2rem;
+        color: var(--main);
+        margin-bottom: 0.8rem;
+    }
+
+    .spec-value {
+        font-weight: 700;
+        font-size: 1.3rem;
+        color: var(--dark);
+        margin-bottom: 0.3rem;
+    }
+
+    .spec-label {
+        color: var(--secondary);
+        font-size: 0.95rem;
+    }
+
+    .section-title {
+        font-weight: 700;
+        font-size: 1.4rem;
+        color: var(--dark);
+        margin-bottom: 1.2rem;
+        position: relative;
+        text-transform: uppercase;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -6px;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background-color: var(--main);
+        border-radius: 2px;
+    }
+
+    .feature-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .feature-list li {
+        padding: 0.6rem 0;
+        font-size: 1rem;
+    }
+
+    .feature-list li::before {
+        content: '•';
+        font-size: 1.2rem;
+        color: var(--main);
+        margin-right: 0.5rem;
+    }
+
+    .action-card {
+        background: white;
+        border-radius: 14px;
+        box-shadow: var(--card-shadow);
+        padding: 2rem;
+        transition: transform 0.3s ease;
+    }
+
+    .action-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, var(--main), #0056b3);
+        border: none;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 1rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary-custom:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 18px rgba(13, 110, 253, 0.25);
+    }
+
+    .btn-success-custom {
+        background: linear-gradient(135deg, var(--success), #157347);
+        border: none;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 1rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-success-custom:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 18px rgba(25, 135, 84, 0.25);
+    }
+
+    /* NOVO ESTILO PARA BOTÃO DE EDIÇÃO */
+    .btn-warning-custom {
+        background: linear-gradient(135deg, var(--warning), #e0a800);
+        border: none;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 0.8rem 1.5rem;
+        transition: all 0.3s ease;
+        color: #000;
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-warning-custom:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 6px 20px rgba(255, 193, 7, 0.3);
+        color: #000;
+    }
+
+    .btn-warning-custom::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-warning-custom:hover::before {
+        left: 100%;
+    }
+
+    .btn-warning-custom .bi {
+        filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+    }
+
+    /* Estilo para o botão cancelar */
+    .btn-secondary-custom {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+        border: none;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 0.8rem 1.5rem;
+        transition: all 0.3s ease;
+        color: white;
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.2);
+    }
+
+    .btn-secondary-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(108, 117, 125, 0.3);
+        color: white;
+    }
+
+    .badge-pill {
+        border-radius: 50px;
+        padding: 0.5rem 1.2rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .car-gallery img {
+            height: 300px;
+        }
+
+        .car-price {
+            font-size: 2rem;
+        }
+
+        .specs-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="car-detail-hero">
+    <div class="container">
+
+        <!-- Tudo que deve sumir fica dentro deste wrapper -->
+        <div id="carro-conteudo">
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Galeria de imagens -->
+                    <div class="car-gallery mb-4">
+                        <div id="carroCarousel" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                {% for imagem in carro.imagens.all %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                    <img src="{{ imagem.foto_url }}" class="d-block w-100"
+                                        alt="{{ carro.marca }} {{ carro.modelo }} - Imagem {{ forloop.counter }}">
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if carro.imagens.all.count > 1 %}
+                            <button class="carousel-control-prev" type="button" data-bs-target="#carroCarousel"
+                                data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Anterior</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#carroCarousel"
+                                data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Próximo</span>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Botões de edição - ESTILIZADOS -->
+                    {% if user.is_authenticated and user.usuario.ocupacao in "funcionario,gerente" %}
+                    <div class="mb-3">
+                        <button type="button" id="btn-editar" class="btn btn-warning-custom">
+                            <i class="bi bi-pencil-square me-2"></i> Editar Informações
+                        </button>
+                        <button type="button" id="btn-cancelar" class="btn btn-secondary-custom" style="display:none;">
+                            <i class="bi bi-x-circle me-2"></i> Cancelar
+                        </button>
+                    </div>
+                    {% endif %}
+
+                    <!-- Título e valor -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h1 class="car-title">{{ carro.marca }} {{ carro.modelo }} {{ carro.ano }}</h1>
+                        <span class="badge bg-primary badge-pill">{{ carro.tipo }}</span>
+                    </div>
+                    <div class="car-price">R$ {{ carro.valor }}</div>
+
+                    <!-- Especificações -->
+                    <div class="specs-grid">
+                        <div class="spec-card">
+                            <div class="spec-icon">📊</div>
+                            <div class="spec-value">{{ carro.km }}</div>
+                            <div class="spec-label">Quilometragem</div>
+                        </div>
+                        <div class="spec-card">
+                            <div class="spec-icon">⚙️</div>
+                            <div class="spec-value">{{ carro.cambio }}</div>
+                            <div class="spec-label">Câmbio</div>
+                        </div>
+                        <div class="spec-card">
+                            <div class="spec-icon">⛽</div>
+                            <div class="spec-value">{{ carro.combustivel }}</div>
+                            <div class="spec-label">Combustível</div>
+                        </div>
+                        <div class="spec-card">
+                            <div class="spec-icon">🎨</div>
+                            <div class="spec-value">{{ carro.cor }}</div>
+                            <div class="spec-label">Cor</div>
+                        </div>
+                    </div>
+
+                    <!-- Detalhes -->
+                    <div class="detail-section">
+                        <h3 class="section-title">Detalhes do Veículo</h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="feature-list">
+                                    <li>Motor: {{ carro.motor }}</li>
+                                    <li>IPVA: {% if carro.ipva_pago %}Pago{% else %}Pendente{% endif %}</li>
+                                    <li>Consumo cidade: {{ carro.consumo_cidade }} km/l</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="feature-list">
+                                    <li>Ano: {{ carro.ano }}</li>
+                                    <li>Marca: {{ carro.marca }}</li>
+                                    <li>Consumo estrada: {{ carro.consumo_estrada }} km/l</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coluna lateral -->
+                <div class="col-lg-4">
+                    <div class="action-card sticky-top" style="top: calc(9.2vh + 20px); z-index: 0;">
+                        <h4 class="mb-4">Interessado neste veículo?</h4>
+                        <p class="text-muted">Entre em contato conosco para mais informações ou agende uma visita.</p>
+
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'agendar_test_drive' carro_id=carro.id %}"
+                                class="btn btn-primary-custom btn-lg">
+                                <i class="bi bi-calendar-check me-2"></i>Agendar Test Drive
+                            </a>
+                            <a href="{% url 'financiamento' carro.id %}" class="btn btn-success-custom btn-lg">
+                                <i class="bi bi-calculator me-2"></i>Simular Financiamento
+                            </a>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="text-center">
+                            <p class="mb-2">Precisa de ajuda?</p>
+                            {% if carro.valor <= 100000 %} <a
+                                href="https://wa.me/+5535997465091?text=Olá!%20Tenho%20interesse%20no%20carro%20{{ carro.marca }}%20{{ carro.modelo }}%20({{ carro.ano }}).%20Poderia%20me%20enviar%20mais%20informações%20por%20favor?"
+                                class="btn btn-outline-primary"><i class="bi bi-whatsapp me-2"></i>Falar com consultor
+                                </a>
+                                {% elif carro.valor <= 500000 %} <a
+                                    href="https://wa.me/+5535997216613?text=Olá!%20Tenho%20interesse%20no%20carro%20{{ carro.marca }}%20{{ carro.modelo }}%20({{ carro.ano }}).%20Poderia%20me%20enviar%20mais%20informações%20por%20favor?"
+                                    class="btn btn-outline-primary">
+                                    <i class="bi bi-whatsapp me-2"></i>Falar com consultor
+                                    </a>
+                                    {% else %}
+                                    <a href="https://wa.me/+5521959148664?text=Olá!%20Tenho%20interesse%20no%20carro%20{{ carro.marca }}%20{{ carro.modelo }}%20({{ carro.ano }}).%20Poderia%20me%20enviar%20mais%20informações%20por%20favor?"
+                                        class="btn btn-outline-primary">
+                                        <i class="bi bi-whatsapp me-2"></i>Falar com consultor
+                                    </a>
+                                    {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🔧 Formulário de edição (fora do conteúdo principal) -->
+        {% if user.is_authenticated and user.usuario.ocupacao in "funcionario,gerente" %}
+        <div id="edit-form-container" class="card shadow p-4 mt-5" style="display:none;">
+            <h4 class="mb-4 text-center text-primary">Editar Informações do Carro</h4>
+            <form method="POST" action="{% url 'editar_carro' carro.pk %}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>Marca</label>
+                        <input type="text" name="marca" class="form-control" value="{{ carro.marca }}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Modelo</label>
+                        <input type="text" name="modelo" class="form-control" value="{{ carro.modelo }}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Ano</label>
+                        <input type="number" name="ano" class="form-control" value="{{ carro.ano }}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Motor</label>
+                        <input type="text" name="motor" class="form-control" value="{{ carro.motor }}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Valor (R$)</label>
+                        <input type="text" name="valor" class="form-control" value="{{ carro.valor }}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Quilometragem</label>
+                        <input type="text" name="km" class="form-control" value="{{ carro.km }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Câmbio</label>
+                        <input type="text" name="cambio" class="form-control" value="{{ carro.cambio }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Combustível</label>
+                        <input type="text" name="combustivel" class="form-control" value="{{ carro.combustivel }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Cor</label>
+                        <input type="text" name="cor" class="form-control" value="{{ carro.cor }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Consumo Cidade (km/l)</label>
+                        <input type="text" name="consumo_cidade" class="form-control"
+                            value="{{ carro.consumo_cidade }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Consumo Estrada (km/l)</label>
+                        <input type="text" name="consumo_estrada" class="form-control"
+                            value="{{ carro.consumo_estrada }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>IPVA Pago</label>
+                        <select name="ipva_pago" class="form-select">
+                            <option value="True" {% if carro.ipva_pago %}selected{% endif %}>Sim</option>
+                            <option value="False" {% if not carro.ipva_pago %}selected{% endif %}>Não</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-success-custom me-2">
+                        <i class="bi bi-check-circle me-2"></i> Salvar Alterações
+                    </button>
+                    <button type="button" id="btn-cancelar-form" class="btn btn-secondary-custom">
+                        <i class="bi bi-x-circle me-2"></i> Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const btnEditar = document.getElementById('btn-editar');
+        const btnCancelar = document.getElementById('btn-cancelar');
+        const btnCancelarForm = document.getElementById('btn-cancelar-form');
+        const editForm = document.getElementById('edit-form-container');
+        const conteudo = document.getElementById('carro-conteudo');
+
+        if (btnEditar) {
+            btnEditar.addEventListener('click', () => {
+                conteudo.style.display = 'none';
+                editForm.style.display = 'block';
+                btnCancelar.style.display = 'inline-block';
+                window.scrollTo({ top: editForm.offsetTop - 100, behavior: 'smooth' });
+            });
+
+            const cancelarEdicao = () => {
+                conteudo.style.display = 'block';
+                editForm.style.display = 'none';
+                btnCancelar.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            if (btnCancelar) {
+                btnCancelar.addEventListener('click', cancelarEdicao);
+            }
+
+            if (btnCancelarForm) {
+                btnCancelarForm.addEventListener('click', cancelarEdicao);
+            }
+        }
+    });
+</script>
+{% endblock %}

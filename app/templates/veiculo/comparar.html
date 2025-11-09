@@ -1,0 +1,422 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block content %}
+<style>
+  .comparacao-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  h2 {
+    font-weight: 800;
+    font-size: 2.5rem;
+    letter-spacing: -0.5px;
+    margin-bottom: 3rem;
+    color: #1a202c;
+    text-align: center;
+    position: relative;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  h2::after {
+    content: "";
+    display: block;
+    width: 160px;
+    height: 4px;
+    background: #007bff;
+    margin: 12px auto 0;
+    border-radius: 2px;
+  }
+
+  .card-comparacao {
+    border: none;
+    border-radius: 24px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+    width: 480px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow:
+      0 8px 30px rgba(0, 0, 0, 0.08),
+      0 2px 6px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .card-comparacao::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--main) 0%, var(--main) 100%);
+  }
+
+  .card-comparacao:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.15),
+      0 8px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  .card-img-top {
+    height: 240px;
+    object-fit: cover;
+    border-bottom: 1px solid #e2e8f0;
+    transition: transform 0.4s ease;
+  }
+
+  .card-comparacao:hover .card-img-top {
+    transform: scale(1.05);
+  }
+
+  .card-body {
+    padding: 2rem;
+    position: relative;
+  }
+
+  .card-body h4 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    color: #1a202c;
+    line-height: 1.3;
+    letter-spacing: -0.5px;
+  }
+
+  .especificacoes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .espec-item {
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+  }
+
+  .espec-item:hover {
+    background: rgba(102, 126, 234, 0.05);
+    border-color: var(--main);
+    transform: translateY(-2px);
+  }
+
+  .espec-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .espec-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #2d3748;
+  }
+
+  .preco-container {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    padding: 1.5rem;
+    border-radius: 16px;
+    text-align: center;
+    margin: 1.5rem 0;
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+  }
+
+  .preco-container h5 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: white;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-detalhes {
+    display: inline-block;
+    width: 100%;
+    background: linear-gradient(135deg, var(--main) 0%, var(--main) 100%);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-detalhes::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+  }
+
+  .btn-detalhes:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-detalhes:hover::before {
+    left: 100%;
+  }
+
+  .badge-destaque {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 8px rgba(237, 137, 54, 0.3);
+    z-index: 2;
+  }
+
+  @media (max-width: 768px) {
+    .comparacao-container {
+      gap: 20px;
+      padding: 20px 15px;
+    }
+
+    .card-comparacao {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 2rem;
+    }
+
+    .especificacoes-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* define altura fixa do carrossel */
+  .car-gallery .carousel-inner {
+    height: 320px;
+    /* ajuste conforme desejar */
+  }
+
+  /* garante que cada slide ocupe toda a altura */
+  .car-gallery .carousel-item {
+    height: 100%;
+  }
+
+  /* container que usa background-image */
+  .car-gallery .carousel-bg {
+    height: 100%;
+    width: 100%;
+    background-size: cover;
+    /* preenche mantendo proporção */
+    background-position: center;
+    /* centraliza exatamente como queria */
+    background-repeat: no-repeat;
+    border-radius: 10px;
+    display: block;
+  }
+</style>
+
+<h2>Comparação de Veículos</h2>
+
+<div class="comparacao-container">
+  {% if carro1 %}
+  <div class="card-comparacao">
+    <div class="badge-destaque">Opção 1</div>
+
+    <!-- Galeria de imagens -->
+    <div class="car-gallery mb-4">
+      <div id="carouselCarro{{ carro1.id }}" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          {% for imagem in carro1.imagens.all %}
+          <!-- <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <img src="{{ imagem.foto_url }}" class="d-block w-100 rounded"
+              alt="{{ carro1.marca }} {{ carro1.modelo }} - Imagem {{ forloop.counter }}">
+          </div> -->
+
+          <!-- Alteração feira para centralizar a imagem -->
+          <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <div class="carousel-bg" role="img"
+              aria-label="{{ carro1.marca }} {{ carro1.modelo }} - Imagem {{ forloop.counter }}"
+              style="background-image: url('{{ imagem.foto_url }}');"></div>
+          </div>
+          {% endfor %}
+        </div>
+
+        {% if carro1.imagens.all.count > 1 %}
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselCarro{{ carro1.id }}"
+          data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Anterior</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselCarro{{ carro1.id }}"
+          data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Próximo</span>
+        </button>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card-body">
+      <h4>{{ carro1.marca }} {{ carro1.modelo }} ({{ carro1.ano }})</h4>
+
+      <div class="especificacoes-grid">
+        <div class="espec-item">
+          <span class="espec-label">Cor</span>
+          <span class="espec-value">{{ carro1.cor }}</span>
+        </div>
+        <div class="espec-item">
+          <span class="espec-label">Tipo</span>
+          <span class="espec-value">{{ carro1.tipo }}</span>
+        </div>
+        <div class="espec-item">
+          <span class="espec-label">Motor</span>
+          <span class="espec-value">{{ carro1.motor }}</span>
+        </div>
+        <div class="espec-item">
+          <span class="espec-label">Câmbio</span>
+          <span class="espec-value">{{ carro1.cambio }}</span>
+        </div>
+        <div class="espec-item">
+          <span class="espec-label">Combustível</span>
+          <span class="espec-value">{{ carro1.combustivel }}</span>
+        </div>
+        <div class="espec-item">
+          <span class="espec-label">Quilometragem</span>
+          <span class="espec-value">{{ carro1.km }} km</span>
+        </div>
+        <div class="espec-item">
+          <span class="espec-label">Consumo Cidade</span>
+          <span class="espec-value">{{ carro1.consumo_cidade }} km/l</span>
+        </div>
+        <div class="espec-item">
+          <span class="espec-label">Consumo Estrada</span>
+          <span class="espec-value">{{ carro1.consumo_estrada }} km/l</span>
+        </div>
+        <div class="espec-item">
+          <span class="espec-label">IPVA</span>
+          <span class="espec-value">{{ carro1.ipva_pago|yesno:"Pago,Pendente" }}</span>
+        </div>
+      </div>
+
+      <div class="preco-container">
+        <h5>R$ {{ carro1.valor|floatformat:0|intcomma }}</h5>
+      </div>
+
+      <a href="{% url 'detalhes' carro1.id %}" class="btn-detalhes">Ver Detalhes Completo</a>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if carro2 %}
+  <div class="card-comparacao">
+    <div class="badge-destaque">Opção 2</div>
+
+    <!-- Galeria de imagens -->
+    <div class="car-gallery mb-4">
+      <div id="carouselCarro{{ carro2.id }}" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          {% for imagem in carro2.imagens.all %}
+          <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <img src="{{ imagem.foto_url }}" class="d-block w-100 rounded"
+              alt="{{ carro2.marca }} {{ carro2.modelo }} - Imagem {{ forloop.counter }}">
+          </div>
+          {% endfor %}
+        </div>
+
+        {% if carro2.imagens.all.count > 1 %}
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselCarro{{ carro2.id }}"
+          data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Anterior</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselCarro{{ carro2.id }}"
+          data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Próximo</span>
+        </button>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card-body">
+      <h4>{{ carro2.marca }} {{ carro2.modelo }} ({{ carro2.ano }})</h4>
+
+      <div class="especificacoes-grid">
+        <div class="espec-item">
+          <span class="espec-label">Cor</span>
+          <span class="espec-value">{{ carro2.cor }}</span>
+        </div>
+        <div class="espec-item">
+          <span class="espec-label">Tipo</span>
+          <span class="espec-value">{{ carro2.tipo }}</span>
+        </div>
+        <div class="espec-item">
+          <span class="espec-label">Motor</span>
+          <span class="espec-value">{{ carro2.motor }}</span>
+        </div>
+        <div class="espec-item">
+          <span class="espec-label">Câmbio</span>
+          <span class="espec-value">{{ carro2.cambio }}</span>
+        </div>
+        <div class="espec-item">
+          <span class="espec-label">Combustível</span>
+          <span class="espec-value">{{ carro2.combustivel }}</span>
+        </div>
+        <div class="espec-item">
+          <span class="espec-label">Quilometragem</span>
+          <span class="espec-value">{{ carro2.km }} km</span>
+        </div>
+        <div class="espec-item">
+          <span class="espec-label">Consumo Cidade</span>
+          <span class="espec-value">{{ carro2.consumo_cidade }} km/l</span>
+        </div>
+        <div class="espec-item">
+          <span class="espec-label">Consumo Estrada</span>
+          <span class="espec-value">{{ carro2.consumo_estrada }} km/l</span>
+        </div>
+        <div class="espec-item">
+          <span class="espec-label">IPVA</span>
+          <span class="espec-value">{{ carro2.ipva_pago|yesno:"Pago,Pendente" }}</span>
+        </div>
+      </div>
+
+      <div class="preco-container">
+        <h5>R$ {{ carro2.valor|floatformat:0|intcomma }}</h5>
+      </div>
+
+      <a href="{% url 'detalhes' carro2.id %}" class="btn-detalhes">Ver Detalhes Completo</a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,275 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pezza Veículos - Registrar</title>
+    <link rel="shortcut icon" href="https://img.icons8.com/?size=100&id=WSJxjrdAqTwz&format=png&color=000000"
+        type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'css/core/base.css' %}">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .auth-section {
+            background-color: var(--light-gray);
+            width: 100%;
+            max-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .auth-card {
+            transform: scale(0.75);
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.15);
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .auth-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2e4374;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-control {
+            height: 50px;
+            border-radius: 10px;
+            padding: 0 20px;
+            border: 1px solid #e1e5eb;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+
+        .btn-auth {
+            background: #4e73df;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 10px;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .btn-auth:hover {
+            background: #2e59d9;
+            transform: translateY(-3px);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .auth-footer a {
+            color: var(--blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .password-requirements {
+            background: var(--light-gray);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .password-requirements ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+
+        .password-requirements li {
+            margin-bottom: 5px;
+        }
+
+        .password-requirements li.valid {
+            color: var(--green);
+        }
+
+        .password-requirements li.invalid {
+            color: var(--red);
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
+
+{% block content %}
+
+{% if messages %}
+<div class="messages" aria-live="polite" aria-atomic="true">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}" role="alert" data-duration="5000">
+        <div class="alert-content">{{ message }}</div>
+        <button class="msg-close" aria-label="Fechar">×</button>
+        <div class="timer-bar"></div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-card">
+            <h2 class="auth-title">Criar Conta no <span class="destaque">Pezza</span>Veículos</h2>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- DADOS DE PESSOA -->
+                <!-- Nome completo do usuário -->
+                <div class="form-group">
+                    <label for="id_nome" class="form-label">Nome Completo *</label>
+                    <input type="text" name="nome" id="id_nome" class="form-control" placeholder="Seu nome completo"
+                        required maxlength="100">
+                </div>
+
+                <!-- EMAIL (já existente) e Contato -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_email" class="form-label">E-mail *</label>
+                            <input type="email" name="email" class="form-control" id="id_email"
+                                placeholder="seu.email@exemplo.com" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_contato" class="form-label">Contato (telefone) *</label>
+                            <input type="tel" name="contato" id="id_contato" class="form-control"
+                                placeholder="(99) 99999-9999" required maxlength="20">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nome do usuário no site -->
+                <div class="form-group">
+                    <label for="id_username" class="form-label">Nome de usuário *</label>
+                    <input type="text" name="username" id="id_username" class="form-control"
+                        placeholder="Escolha um nome único" required maxlength="150" autocomplete="username"
+                        autocapitalize="none" autofocus>
+                </div>
+
+                <!-- Senha e confirmação de senha -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_password1" class="form-label">Senha *</label>
+                            <input type="password" name="password1" id="id_password1" class="form-control"
+                                placeholder="Crie uma senha segura" required autocomplete="new-password">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_password2" class="form-label">Confirmar Senha *</label>
+                            <input type="password" name="password2" id="id_password2" class="form-control"
+                                placeholder="Digite-a novamente" required autocomplete="new-password">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="password-requirements">
+                        <p>Sua senha deve conter:</p>
+                        <ul>
+                            <li id="length" class="invalid">Pelo menos 8 caracteres</li>
+                            <li id="letter" class="invalid">Pelo menos uma letra</li>
+                            <li id="number" class="invalid">Pelo menos um número</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- TERMOS -->
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" id="terms" required>
+                    <label class="form-check-label" for="terms">
+                        Eu li e concordo com os
+                        <a href="#">Termos de Uso</a> e
+                        <a href="#">Política de Privacidade</a>
+                    </label>
+                </div>
+
+                <!-- BOTÃO -->
+                <div class="form-group">
+                    <button type="submit" class="btn btn-auth">Criar Conta</button>
+                </div>
+            </form>
+
+            <div class="auth-footer">
+                <p>Já tem uma conta?
+                    <a href="{% url 'login' %}">Faça login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const password = document.getElementById('id_password1');
+        const length = document.getElementById('length');
+        const letter = document.getElementById('letter');
+        const number = document.getElementById('number');
+
+        password.addEventListener('input', function () {
+            // Validação de comprimento
+            if (password.value.length >= 8) {
+                length.classList.remove('invalid');
+                length.classList.add('valid');
+            } else {
+                length.classList.remove('valid');
+                length.classList.add('invalid');
+            }
+
+            // Validação de letra
+            if (/[A-Za-z]/.test(password.value)) {
+                letter.classList.remove('invalid');
+                letter.classList.add('valid');
+            } else {
+                letter.classList.remove('valid');
+                letter.classList.add('invalid');
+            }
+
+            // Validação de número
+            if (/[0-9]/.test(password.value)) {
+                number.classList.remove('invalid');
+                number.classList.add('valid');
+            } else {
+                number.classList.remove('valid');
+                number.classList.add('invalid');
+            }
+        });
+    });
+</script>
+{% endblock %}
